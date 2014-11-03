@@ -1,0 +1,163 @@
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.Data.Json;
+
+namespace SmallWamp
+{
+    public class WampSession
+    {
+        private static Random sRandom = new Random();
+
+        private Dictionary<string, IWampSubject> _topics;
+        private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
+        private Dictionary<MessageType, Action<JArray>> _messageHandlers;
+        private IWampTransport _transport;
+
+        public WampSession(IWampTransport transport)
+        {
+            this._pendingCalls = new Dictionary<string, Action<Exception, JToken>>();
+            this._messageHandlers = new Dictionary<MessageType, Action<JArray>>();
+            this._topics = new Dictionary<string, IWampSubject>();
+
+            this._transport = transport;
+            this._transport.Message += transport_Message;
+
+
+            this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
+
+            this._messageHandlers[MessageType.CALLERROR] = OnCallError;
+
+            this._messageHandlers[MessageType.EVENT] = OnEvent;
+        }
+
+        void transport_Message(object sender, WampMessageEventArgs e)
+        {
+            var type = (MessageType)e.Message[0].Value<int>();
+
+            _messageHandlers[type](e.Message);   
+        }
+
+        private void OnCallResult(JArray m)
+        {
+            var call_id = m[1].Value<string>();
+
+            this._pendingCalls[call_id](null, m[2]);
+        }
+
+        private void OnEvent(JArray m)
+        {
+            var topic = m[1].Value<string>();
+
+            IWampSubject subject = null;
+
+            if (this._topics.TryGetValue(topic, out subject))
+            {
+                subject.OnEvent(topic, m[2]);
+            }
+        }
+
+        private void OnCallError(JArray m)
+        {
+            var call_id = m[1].Value<string>();
+
+            var exception = new WampCallException();
+
+            this._pendingCalls[call_id](exception, default(JToken));
+        }
+
+        void socket_MessageReceived(Windows.Networking.Sockets.MessageWebSocket sender, Windows.Networking.Sockets.MessageWebSocketMessageReceivedEventArgs args)
+        {
+            //Get the DataReader
+            var dataReader = args.GetDataReader();
+
+            //Read the data off the reader
+            var message = dataReader.ReadString(dataReader.UnconsumedBufferLength);
+
+            var parsedMessage = JArray.Parse(message);
+
+            var type = (MessageType)parsedMessage[0].Value<int>();
+
+            _messageHandlers[type](parsedMessage);
+        }
+
+        public Task<T> Call<T>(string method, params object[] content)
+        {
+
+            var call_id = GenerateCallId();
+            JArray array = new JArray(2, method, call_id);
+
+            foreach (var item in content)
+            {
+                array.Add(item);
+            }
+
+            TaskCompletionSource<T> source = new TaskCompletionSource<T>();
+
+            this._pendingCalls[call_id] = (ex, t) =>
+            {
+                if (ex != null)
+                {
+                    source.SetException(ex);
+                    return;
+                }
+
+                source.SetResult(t.ToObject<T>());
+            };
+
+            this._transport.Send(array);
+
+            return source.Task;
+
+        }
+
+        public IWampSubject<T> Subscribe<T>(string topic)
+        {
+            IWampSubject subject = null;
+
+            if (!this._topics.TryGetValue(topic, out subject))
+            {
+                subject = this._topics[topic] = new WampSubject<T>(this, topic);
+            }
+
+            return (IWampSubject<T>)subject;
+        }
+
+        public void Publish<T>(string topic, T ev)
+        {
+            JArray array = new JArray(MessageType.SUBSCRIBE, topic, ev);
+
+            WriteMessage(array);
+        }
+
+        public IEnumerable<IWampSubject> Subscriptions
+        {
+            get
+            {
+                return this._topics.Values;
+            }
+        }
+
+        private void WriteMessage(JToken array)
+        {
+            this._transport.Send(array);
+        }
+
+        private string GenerateCallId()
+        {
+            byte[] buffer = new byte[20];
+            sRandom.NextBytes(buffer);
+            return BitConverter.ToString(buffer);
+        }
+
+        public void Unsubscribe(string key)
+        {
+            this._topics.Remove(key);
+        }
+    }
+}
