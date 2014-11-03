@@ -78,6 +78,7 @@ namespace SmallWamp
         {
             var t = connection.Subscribe<int>("test/topic");
             Assert.AreEqual(t.Topic, "test/topic");
+            Assert.AreEqual(connection.Subscriptions.Count(), 1);
         }
 
         [TestMethod]
@@ -103,6 +104,7 @@ namespace SmallWamp
             mockTransport.SendProxy = arr =>
             {
                 JArray call = (JArray)arr;
+                //Must capture the call id in order finish the call
                 JArray result = new JArray(MessageType.CALLRESULT, call[2], 8);
                 mockTransport.RaiseMessage(result);
             };
@@ -113,6 +115,22 @@ namespace SmallWamp
             callTask.Wait();
 
             Assert.AreEqual(callTask.Result, 8);
+        }
+
+        [TestMethod]
+        public void TestCallWithError()
+        {
+            mockTransport.SendProxy = arr =>
+            {
+                JArray call = (JArray)arr;
+                JArray result = new JArray(MessageType.CALLERROR, call[2], 8);
+                mockTransport.RaiseMessage(result);
+            };
+
+            var callTask = connection.Call<int>("test/method", 5, 3);
+
+            Assert.ThrowsException<AggregateException>(() => callTask.Wait());
+
         }
     }
 }
