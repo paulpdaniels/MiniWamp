@@ -28,11 +28,8 @@ namespace SmallWamp
             this._transport = transport;
             this._transport.Message += transport_Message;
 
-
             this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
-
             this._messageHandlers[MessageType.CALLERROR] = OnCallError;
-
             this._messageHandlers[MessageType.EVENT] = OnEvent;
         }
 
@@ -88,8 +85,13 @@ namespace SmallWamp
 
         public Task<T> Call<T>(string method, params object[] content)
         {
+            string call_id = null;
 
-            var call_id = GenerateCallId();
+            do {
+                call_id = GenerateCallId(); 
+            }
+            while(this._pendingCalls.ContainsKey(call_id));
+
             JArray array = new JArray(2, method, call_id);
 
             foreach (var item in content)
