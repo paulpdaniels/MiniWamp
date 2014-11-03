@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 
-namespace SmallWamp
+namespace DapperWare
 {
     class MessageWebSocketTransport : IWampTransport
     {

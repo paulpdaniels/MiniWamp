@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SmallWamp
+namespace DapperWare
 {
     public class WampMessageEventArgs : EventArgs
     {

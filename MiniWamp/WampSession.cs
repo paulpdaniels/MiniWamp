@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 
-namespace SmallWamp
+namespace DapperWare
 {
     public class WampSession
     {

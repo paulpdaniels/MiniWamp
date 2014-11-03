@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using SmallWamp;
+using DapperWare;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace SmallWamp
+namespace DapperWare
 {
     [TestClass]
     public class WampSessionTests
