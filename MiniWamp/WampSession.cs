@@ -18,6 +18,7 @@ namespace SmallWamp
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
+        private TaskCompletionSource<bool> _welcomed;
 
         public WampSession(IWampTransport transport)
         {
@@ -28,16 +29,28 @@ namespace SmallWamp
             this._transport = transport;
             this._transport.Message += transport_Message;
 
+            this._messageHandlers[MessageType.WELCOME] = OnWelcome;
             this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
             this._messageHandlers[MessageType.CALLERROR] = OnCallError;
             this._messageHandlers[MessageType.EVENT] = OnEvent;
         }
+
+       
 
         void transport_Message(object sender, WampMessageEventArgs e)
         {
             var type = (MessageType)e.Message[0].Value<int>();
 
             _messageHandlers[type](e.Message);   
+        }
+
+        private void OnWelcome(JArray obj)
+        {
+            if (this._welcomed != null)
+            {
+                this.SessionId = obj[1].Value<string>();
+                this._welcomed.SetResult(true);
+            }
         }
 
         private void OnCallResult(JArray m)
@@ -160,6 +173,17 @@ namespace SmallWamp
         public void Unsubscribe(string key)
         {
             this._topics.Remove(key);
+        }
+
+        public string SessionId { get; private set; }
+
+        internal async Task ConnectAsync(string url)
+        {
+            this._welcomed = new TaskCompletionSource<bool>();
+
+            await this._transport.ConnectAsync(url);
+
+            await this._welcomed.Task;
         }
     }
 }

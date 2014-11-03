@@ -7,6 +7,6 @@ namespace SmallWamp
 {
     public interface ITransportFactory
     {
-        System.Threading.Tasks.Task<IWampTransport> CreateAsync(string url);
+        IWampTransport Create();
     }
 }

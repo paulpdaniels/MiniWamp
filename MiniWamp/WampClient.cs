@@ -17,9 +17,11 @@ namespace SmallWamp
 
         public static async Task<WampSession> Connect(string url, ITransportFactory factory)
         {
-            var transport = await factory.CreateAsync(url);
+            var session = new WampSession(factory.Create());
 
-            return new WampSession(transport);
+            await session.ConnectAsync(url);
+
+            return session;
         }
 
     }

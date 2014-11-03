@@ -21,9 +21,9 @@ namespace SmallWamp
                 this.instance = instance;
             }
 
-            public Task<IWampTransport> CreateAsync(string url)
+            public IWampTransport Create()
             {
-                return Task.FromResult(instance);
+                return instance;
             }
         }
 
@@ -50,6 +50,12 @@ namespace SmallWamp
                 }
             }
 
+
+            public Task ConnectAsync(string url)
+            {
+                RaiseMessage(new JArray(0, "mysessionid", 1, "test server 1.0"));
+                return Task.FromResult(true);
+            }
         }
 
         private ITransportFactory mockTransportFactory;
@@ -65,6 +71,12 @@ namespace SmallWamp
             var connectionTask = WampClient.Connect("ws://localhost:3000", mockTransportFactory);
             connectionTask.Wait();
             this.connection = connectionTask.Result;
+        }
+
+        [TestMethod]
+        public void TestInitializedSession()
+        {
+            Assert.AreEqual(connection.SessionId, "mysessionid");
         }
 
         [TestMethod]

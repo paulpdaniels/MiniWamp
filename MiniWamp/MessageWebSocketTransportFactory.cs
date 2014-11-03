@@ -18,11 +18,9 @@ namespace SmallWamp
             }
         }
 
-        public async System.Threading.Tasks.Task<IWampTransport> CreateAsync(string url)
+        public IWampTransport Create()
         {
             var transport = new MessageWebSocketTransport();
-
-            await transport.ConnectAsync(url);
 
             return transport;
         }

@@ -7,6 +7,8 @@ namespace SmallWamp
 {
     public interface IWampTransport
     {
+        System.Threading.Tasks.Task ConnectAsync(string url);
+
         event EventHandler Closed;
 
         void Send(Newtonsoft.Json.Linq.JToken array);

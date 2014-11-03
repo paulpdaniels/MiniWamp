@@ -5,12 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 
 namespace SmallWamp
 {
     class MessageWebSocketTransport : IWampTransport
     {
+        private TaskCompletionSource<bool> _connected;
+
+
         public MessageWebSocketTransport()
         {
             this._socket = new MessageWebSocket();
@@ -20,7 +24,6 @@ namespace SmallWamp
 
         void _socket_MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
         {
-
 
             if (this.Message != null)
             {
@@ -36,7 +39,7 @@ namespace SmallWamp
             }
         }
 
-        internal async System.Threading.Tasks.Task ConnectAsync(string url)
+        public async System.Threading.Tasks.Task ConnectAsync(string url)
         {
             await this._socket.ConnectAsync(new Uri(url));
         }
