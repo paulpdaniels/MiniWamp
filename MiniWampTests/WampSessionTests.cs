@@ -117,7 +117,7 @@ namespace DapperWare
             {
                 JArray call = (JArray)arr;
                 //Must capture the call id in order finish the call
-                JArray result = new JArray(MessageType.CALLRESULT, call[2], 8);
+                JArray result = new JArray(MessageType.CALLRESULT, call[1], 8);
                 mockTransport.RaiseMessage(result);
             };
 
@@ -135,7 +135,7 @@ namespace DapperWare
             mockTransport.SendProxy = arr =>
             {
                 JArray call = (JArray)arr;
-                JArray result = new JArray(MessageType.CALLERROR, call[2], 8);
+                JArray result = new JArray(MessageType.CALLERROR, call[1], 8);
                 mockTransport.RaiseMessage(result);
             };
 

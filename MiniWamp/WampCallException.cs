@@ -7,5 +7,12 @@ namespace DapperWare
 {
     public class WampCallException : Exception
     {
+        public WampCallException() { }
+
+        public WampCallException(string reason)
+            :base(reason)
+        {
+
+        }
     }
 }

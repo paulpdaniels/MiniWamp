@@ -76,7 +76,7 @@ namespace DapperWare
         {
             var call_id = m[1].Value<string>();
 
-            var exception = new WampCallException();
+            var exception = new WampCallException("Error on on call to topic: " + m[2].Value<string>());
 
             this._pendingCalls[call_id](exception, default(JToken));
         }
@@ -105,11 +105,11 @@ namespace DapperWare
             }
             while(this._pendingCalls.ContainsKey(call_id));
 
-            JArray array = new JArray(2, method, call_id);
+            List<object> arr = new List<object> { 2, call_id, method };
 
             foreach (var item in content)
             {
-                array.Add(item);
+                arr.Add(item);
             }
 
             TaskCompletionSource<T> source = new TaskCompletionSource<T>();
@@ -125,7 +125,7 @@ namespace DapperWare
                 source.SetResult(t.ToObject<T>());
             };
 
-            this._transport.Send(array);
+            this._transport.Send(JArray.FromObject(arr));
 
             return source.Task;
 
@@ -138,6 +138,8 @@ namespace DapperWare
             if (!this._topics.TryGetValue(topic, out subject))
             {
                 subject = this._topics[topic] = new WampSubject<T>(this, topic);
+
+                this._transport.Send(new JArray(5, topic));
             }
 
             return (IWampSubject<T>)subject;
@@ -167,7 +169,7 @@ namespace DapperWare
         {
             byte[] buffer = new byte[20];
             sRandom.NextBytes(buffer);
-            return BitConverter.ToString(buffer);
+            return System.Text.Encoding.UTF8.GetString(buffer, 0, 20);
         }
 
         public void Unsubscribe(string key)

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
+using Windows.Storage.Streams;
 
 namespace DapperWare
 {
@@ -19,6 +20,8 @@ namespace DapperWare
         {
             this._socket = new MessageWebSocket();
 
+            this._socket.Control.SupportedProtocols.Add("wamp");
+
             this._socket.MessageReceived += _socket_MessageReceived;
         }
 
@@ -27,15 +30,18 @@ namespace DapperWare
 
             if (this.Message != null)
             {
-                //Get the DataReader
-                var dataReader = args.GetDataReader();
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    //Get the DataReader
+                    using (var dataReader = new JsonTextReader(new StreamReader(ms)))
+                    {
+                        args.GetDataStream().AsStreamForRead().CopyTo(ms);
+                        ms.Position = 0;
+                        var parsedMessage = JArray.Load(dataReader);
+                        Message(this, new WampMessageEventArgs(parsedMessage));
+                    }
 
-                //Read the data off the reader
-                var message = dataReader.ReadString(dataReader.UnconsumedBufferLength);
-
-                var parsedMessage = JArray.Parse(message);
-
-                Message(this, new WampMessageEventArgs(parsedMessage));
+                }
             }
         }
 
@@ -46,11 +52,21 @@ namespace DapperWare
 
         public event EventHandler Closed;
 
-        public void Send(Newtonsoft.Json.Linq.JToken array)
+        public async void Send(Newtonsoft.Json.Linq.JToken array)
         {
-            using (JsonWriter writer = new JsonTextWriter(new StreamWriter(this._socket.OutputStream.AsStreamForWrite())))
+            using (MemoryStream ms = new MemoryStream())
             {
-                array.WriteTo(writer);
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(ms)))
+                {
+                    DataWriter dataWriter = new DataWriter(this._socket.OutputStream);
+
+
+                    var result = array.ToString(Formatting.None);
+                    dataWriter.WriteString(result);
+                    await dataWriter.StoreAsync();
+                }
+
+
             }
         }
 
