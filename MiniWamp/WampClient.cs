@@ -14,17 +14,17 @@ namespace DapperWare
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static Task<WampSession> Connect(string url)
+        public static Task<WampSession> ConnectAsync(string url)
         {
-            return Connect(url, MessageWebSocketTransportFactory.Default);
+            return ConnectAsync(url, MessageWebSocketTransportFactory.Default);
         }
 
-        public static Task<WampSession> Connect(string url, ITransportFactory factory)
+        public static Task<WampSession> ConnectAsync(string url, ITransportFactory factory)
         {
-            return Connect(url, () => factory.Create());
+            return ConnectAsync(url, () => factory.Create());
         }
 
-        public static async Task<WampSession> Connect(string url, Func<IWampTransport> factoryFn)
+        public static async Task<WampSession> ConnectAsync(string url, Func<IWampTransport> factoryFn)
         {
             var session = new WampSession(factoryFn());
 

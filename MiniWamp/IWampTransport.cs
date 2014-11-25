@@ -10,11 +10,12 @@ namespace DapperWare
         System.Threading.Tasks.Task ConnectAsync(string url);
 
         event EventHandler Closed;
+        event EventHandler Error;
+        event EventHandler<WampMessageEventArgs> Message;
 
         void Send(Newtonsoft.Json.Linq.JToken array);
 
 
-        event EventHandler<WampMessageEventArgs> Message;
 
     }
 }

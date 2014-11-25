@@ -23,6 +23,20 @@ namespace DapperWare
             this._socket.Control.SupportedProtocols.Add("wamp");
 
             this._socket.MessageReceived += _socket_MessageReceived;
+            this._socket.Closed += _socket_Closed;
+        }
+
+        void _socket_Closed(IWebSocket sender, WebSocketClosedEventArgs args)
+        {
+            this.OnClosed(sender, args);
+        }
+
+        protected virtual void OnClosed(object sender, WebSocketClosedEventArgs args)
+        {
+            if (this.Closed != null)
+            {
+                Closed(sender, EventArgs.Empty);
+            }
         }
 
         void _socket_MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
@@ -30,19 +44,37 @@ namespace DapperWare
 
             if (this.Message != null)
             {
-                using (MemoryStream ms = new MemoryStream())
+                try
                 {
-                    //Get the DataReader
-                    using (var dataReader = new JsonTextReader(new StreamReader(ms)))
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        args.GetDataStream().AsStreamForRead().CopyTo(ms);
-                        ms.Position = 0;
-                        var parsedMessage = JArray.Load(dataReader);
-                        Message(this, new WampMessageEventArgs(parsedMessage));
-                    }
+                        //Get the DataReader
+                        using (var dataReader = new JsonTextReader(new StreamReader(ms)))
+                        {
+                            args.GetDataStream().AsStreamForRead().CopyTo(ms);
+                            ms.Position = 0;
+                            var parsedMessage = JArray.Load(dataReader);
+                            Message(this, new WampMessageEventArgs(parsedMessage));
+                        }
 
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var status = Windows.Networking.Sockets.WebSocketError.GetStatus(ex.HResult);
+                    if (status != Windows.Web.WebErrorStatus.Unknown)
+                        this.OnError(this, status);
                 }
             }
+        }
+
+        private void OnError(object sender, Windows.Web.WebErrorStatus status)
+        {
+            if (this.Error != null)
+            {
+
+                Error(sender, EventArgs.Empty);
+            } 
         }
 
         public async System.Threading.Tasks.Task ConnectAsync(string url)
@@ -50,7 +82,9 @@ namespace DapperWare
             await this._socket.ConnectAsync(new Uri(url));
         }
 
-        public event EventHandler Closed;
+        
+
+
 
         public async void Send(Newtonsoft.Json.Linq.JToken array)
         {
@@ -58,12 +92,13 @@ namespace DapperWare
             {
                 using (JsonWriter writer = new JsonTextWriter(new StreamWriter(ms)))
                 {
-                    DataWriter dataWriter = new DataWriter(this._socket.OutputStream);
-
-
-                    var result = array.ToString(Formatting.None);
-                    dataWriter.WriteString(result);
-                    await dataWriter.StoreAsync();
+                    using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))
+                    {
+                        var result = array.ToString(Formatting.None);
+                        dataWriter.WriteString(result);
+                        await dataWriter.StoreAsync();
+                        dataWriter.DetachStream();
+                    }
                 }
 
 
@@ -71,6 +106,8 @@ namespace DapperWare
         }
 
         public event EventHandler<WampMessageEventArgs> Message;
+        public event EventHandler Closed;
+        public event EventHandler Error;
         private MessageWebSocket _socket;
     }
 }

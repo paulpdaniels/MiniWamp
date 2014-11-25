@@ -20,6 +20,15 @@ namespace DapperWare
         private IWampTransport _transport;
         private TaskCompletionSource<bool> _welcomed;
 
+
+        public IWampTransport Transport
+        {
+            get
+            {
+                return this._transport;
+            }
+        }
+
         public WampSession(IWampTransport transport)
         {
             this._pendingCalls = new Dictionary<string, Action<Exception, JToken>>();

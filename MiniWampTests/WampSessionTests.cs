@@ -56,6 +56,9 @@ namespace DapperWare
                 RaiseMessage(new JArray(0, "mysessionid", 1, "test server 1.0"));
                 return Task.FromResult(true);
             }
+
+
+            public event EventHandler Error;
         }
 
         private ITransportFactory mockTransportFactory;
@@ -68,7 +71,7 @@ namespace DapperWare
         {
             mockTransport = new MockWampTransport();
             mockTransportFactory = new MockTransportFactory(mockTransport);
-            var connectionTask = WampClient.Connect("ws://localhost:3000", mockTransportFactory);
+            var connectionTask = WampClient.ConnectAsync("ws://localhost:3000", mockTransportFactory);
             connectionTask.Wait();
             this.connection = connectionTask.Result;
         }
