@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using DapperWare;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace DapperWare
 {
@@ -146,6 +148,43 @@ namespace DapperWare
 
             Assert.ThrowsException<AggregateException>(() => callTask.Wait());
 
+        }
+
+        [TestMethod]
+        public void TestDeserializeMultiMessage()
+        {
+            string message = "[3][\"test\"]";
+
+            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
+            {
+                
+                reader.SupportMultipleContent = true;
+                var parsed = JArray.Load(reader);
+                reader.Read();
+                var parsed2 = JArray.Load(reader);
+
+                Assert.AreEqual(1, parsed.Count);
+                Assert.AreEqual(1, parsed2.Count);
+            }
+        }
+
+        [TestMethod]
+        public void TestDeserializeMessage()
+        {
+            string message = "[3]";
+
+            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
+            {
+                List<JArray> messages = new List<JArray>();
+                reader.SupportMultipleContent = true;
+
+                while (reader.Read())
+                {
+                    messages.Add(JArray.Load(reader));
+                }
+
+                Assert.AreEqual(1, messages.Count);
+            }
         }
     }
 }

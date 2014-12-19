@@ -53,8 +53,12 @@ namespace DapperWare
                         {
                             args.GetDataStream().AsStreamForRead().CopyTo(ms);
                             ms.Position = 0;
-                            var parsedMessage = JArray.Load(dataReader);
-                            Message(this, new WampMessageEventArgs(parsedMessage));
+                            dataReader.SupportMultipleContent = true;
+                            while (dataReader.Read())
+                            {
+                                var parsedMessage = JArray.Load(dataReader);
+                                Message(this, new WampMessageEventArgs(parsedMessage));
+                            }
                         }
 
                     }
