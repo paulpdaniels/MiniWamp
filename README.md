@@ -22,11 +22,11 @@ using DapperWare;
 
 //Will use the default Transport which is a MessageWebSocket
 
-Task<WampSession> session = WampClient.Connect("ws://localhost:3000");
+Task<WampSession> session = WampClient.ConnectAsync("ws://localhost:3000");
 
 //You can also implement your own transport as long as it implements IWampTransport
 //Notice that we can await the connection to complete it asynchronously
-var session2 = await WampClient.Connect("ws://localhost:3000", new MyTransportFactory());
+var session2 = await WampClient.ConnectAsync("ws://localhost:3000", new MyTransportFactory());
 ```
 
 Super simple right?
