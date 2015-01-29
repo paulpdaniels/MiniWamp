@@ -7,10 +7,18 @@ Currently only supports WAMP v1 but who knows v2 might be in the cards
 
 Only requires JSON.net.  Ideally would have no dependencies but lets face it the built in JSON libraries are not really up to snuff.
 
+
+
 #### Quickstart
+
+Get It: [Nuget Package](https://www.nuget.org/packages/MiniWamp/)
+
 
 Start by using the WampClient to start up a connection
 ```csharp
+
+//At the top
+using DapperWare;
 
 //Will use the default Transport which is a MessageWebSocket
 
@@ -34,10 +42,10 @@ mySubject.Message += mySubject_MessageHandler;
 
 //There are two ways to unsubscribe
 
-//Directly through the subject
+//Unsubscribes only this subject
 mySubject.Unsubscribe();
 
-//Through the session
+//Unsubscribes all subjects
 session.Unsubscribe("mytopic/something");
 
 //Publication
