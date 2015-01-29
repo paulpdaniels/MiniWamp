@@ -7,20 +7,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
+using Windows.Security.Cryptography;
 
 namespace DapperWare
 {
     public class WampSession
     {
-        private static Random sRandom = new Random();
-
+        #region Private Members
         private Dictionary<string, IWampSubject> _topics;
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
-        private TaskCompletionSource<bool> _welcomed;
+        private TaskCompletionSource<bool> _welcomed; 
+        #endregion
 
-
+        #region Properties
         public IWampTransport Transport
         {
             get
@@ -29,6 +30,18 @@ namespace DapperWare
             }
         }
 
+        public IEnumerable<IWampSubject> Subscriptions
+        {
+            get
+            {
+                return this._topics.Values;
+            }
+        }
+
+        public string SessionId { get; private set; }
+        #endregion
+
+        #region Constructor
         public WampSession(IWampTransport transport)
         {
             this._pendingCalls = new Dictionary<string, Action<Exception, JToken>>();
@@ -42,11 +55,87 @@ namespace DapperWare
             this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
             this._messageHandlers[MessageType.CALLERROR] = OnCallError;
             this._messageHandlers[MessageType.EVENT] = OnEvent;
+        } 
+        #endregion
+
+        #region Public
+        public Task<T> Call<T>(string method, params object[] content)
+        {
+            string call_id = null;
+
+            do
+            {
+                call_id = GenerateCallId();
+            }
+            while (this._pendingCalls.ContainsKey(call_id));
+
+            List<object> arr = new List<object> { 2, call_id, method };
+
+            foreach (var item in content)
+            {
+                arr.Add(item);
+            }
+
+            TaskCompletionSource<T> source = new TaskCompletionSource<T>();
+
+            this._pendingCalls[call_id] = (ex, t) =>
+            {
+                if (ex != null)
+                {
+                    source.SetException(ex);
+                    return;
+                }
+
+                source.SetResult(t.ToObject<T>());
+            };
+
+            this._transport.Send(JArray.FromObject(arr));
+
+            return source.Task;
+
         }
 
-       
+        public IWampSubject<T> Subscribe<T>(string topic)
+        {
+            IWampSubject subject = null;
+            WampSubject<T> rootSubject = null;
 
-        void transport_Message(object sender, WampMessageEventArgs e)
+            if (!this._topics.TryGetValue(topic, out subject))
+            {
+                this._topics[topic] = rootSubject = new WampSubject<T>(this, topic);
+                this._transport.Send(new JArray(5, topic));
+            }
+            else
+            {
+                rootSubject = (WampSubject<T>)subject;
+            }
+
+            return rootSubject.CreateChild();
+        }
+
+        public void Publish<T>(string topic, T ev)
+        {
+            JArray array = new JArray(MessageType.SUBSCRIBE, topic, ev);
+
+            WriteMessage(array);
+        }
+
+        public void Unsubscribe(string key)
+        {
+            this._topics.Remove(key);
+        }
+        #endregion
+
+        internal async Task ConnectAsync(string url)
+        {
+            this._welcomed = new TaskCompletionSource<bool>();
+
+            await this._transport.ConnectAsync(url);
+
+            await this._welcomed.Task;
+        }
+
+        private void transport_Message(object sender, WampMessageEventArgs e)
         {
             var type = (MessageType)e.Message[0].Value<int>();
 
@@ -105,69 +194,7 @@ namespace DapperWare
             _messageHandlers[type](parsedMessage);
         }
 
-        public Task<T> Call<T>(string method, params object[] content)
-        {
-            string call_id = null;
 
-            do {
-                call_id = GenerateCallId(); 
-            }
-            while(this._pendingCalls.ContainsKey(call_id));
-
-            List<object> arr = new List<object> { 2, call_id, method };
-
-            foreach (var item in content)
-            {
-                arr.Add(item);
-            }
-
-            TaskCompletionSource<T> source = new TaskCompletionSource<T>();
-
-            this._pendingCalls[call_id] = (ex, t) =>
-            {
-                if (ex != null)
-                {
-                    source.SetException(ex);
-                    return;
-                }
-
-                source.SetResult(t.ToObject<T>());
-            };
-
-            this._transport.Send(JArray.FromObject(arr));
-
-            return source.Task;
-
-        }
-
-        public IWampSubject<T> Subscribe<T>(string topic)
-        {
-            IWampSubject subject = null;
-
-            if (!this._topics.TryGetValue(topic, out subject))
-            {
-                subject = this._topics[topic] = new WampSubject<T>(this, topic);
-
-                this._transport.Send(new JArray(5, topic));
-            }
-
-            return (IWampSubject<T>)subject;
-        }
-
-        public void Publish<T>(string topic, T ev)
-        {
-            JArray array = new JArray(MessageType.SUBSCRIBE, topic, ev);
-
-            WriteMessage(array);
-        }
-
-        public IEnumerable<IWampSubject> Subscriptions
-        {
-            get
-            {
-                return this._topics.Values;
-            }
-        }
 
         private void WriteMessage(JToken array)
         {
@@ -176,25 +203,9 @@ namespace DapperWare
 
         private string GenerateCallId()
         {
-            byte[] buffer = new byte[20];
-            sRandom.NextBytes(buffer);
-            return System.Text.Encoding.UTF8.GetString(buffer, 0, 20);
+            return CryptographicBuffer.EncodeToBase64String(CryptographicBuffer.GenerateRandom(20));
         }
 
-        public void Unsubscribe(string key)
-        {
-            this._topics.Remove(key);
-        }
 
-        public string SessionId { get; private set; }
-
-        internal async Task ConnectAsync(string url)
-        {
-            this._welcomed = new TaskCompletionSource<bool>();
-
-            await this._transport.ConnectAsync(url);
-
-            await this._welcomed.Task;
-        }
     }
 }

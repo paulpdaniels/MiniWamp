@@ -9,7 +9,7 @@
     <ProjectGuid>{3123F44F-D7F7-44D4-B4BA-8C016515382F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmallWamp</RootNamespace>
+    <RootNamespace>DapperWare</RootNamespace>
     <AssemblyName>MiniWamp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
@@ -101,12 +101,14 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ChildWampSubject.cs" />
     <Compile Include="ITransportFactory.cs" />
     <Compile Include="IWampSubject.cs" />
     <Compile Include="IWampTransport.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="MessageWebSocketTransport.cs" />
     <Compile Include="MessageWebSocketTransportFactory.cs" />
+    <Compile Include="Util\RefCounted.cs" />
     <Compile Include="WampCallException.cs" />
     <Compile Include="WampClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
