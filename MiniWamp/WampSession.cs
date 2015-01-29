@@ -77,7 +77,7 @@ namespace DapperWare
 
             if (this._topics.TryGetValue(topic, out subject))
             {
-                subject.OnEvent(topic, m[2]);
+                subject.HandleEvent(topic, m[2]);
             }
         }
 

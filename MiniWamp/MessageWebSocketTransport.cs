@@ -13,8 +13,7 @@ namespace DapperWare
 {
     class MessageWebSocketTransport : IWampTransport
     {
-        private TaskCompletionSource<bool> _connected;
-
+        private MessageWebSocket _socket;
 
         public MessageWebSocketTransport()
         {
@@ -76,7 +75,6 @@ namespace DapperWare
         {
             if (this.Error != null)
             {
-
                 Error(sender, EventArgs.Empty);
             } 
         }
@@ -86,15 +84,9 @@ namespace DapperWare
             await this._socket.ConnectAsync(new Uri(url));
         }
 
-        
-
-
-
         public async void Send(Newtonsoft.Json.Linq.JToken array)
         {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(ms)))
+                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(new MemoryStream())))
                 {
                     using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))
                     {
@@ -104,14 +96,11 @@ namespace DapperWare
                         dataWriter.DetachStream();
                     }
                 }
-
-
-            }
         }
 
         public event EventHandler<WampMessageEventArgs> Message;
         public event EventHandler Closed;
         public event EventHandler Error;
-        private MessageWebSocket _socket;
+        
     }
 }

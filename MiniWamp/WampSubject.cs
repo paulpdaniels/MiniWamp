@@ -21,7 +21,7 @@ namespace DapperWare
         public event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
 
 
-        public void OnEvent(string topic, Newtonsoft.Json.Linq.JToken jToken)
+        public void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken jToken)
         {
             OnEvent(this, new WampSubscriptionMessageEventArgs<T>(topic, jToken.ToObject<T>()));
         }

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace DapperWare
 {
+    /// <summary>
+    /// Gets the type of message sent by the client
+    /// </summary>
     public enum MessageType
     {
         WELCOME = 0,

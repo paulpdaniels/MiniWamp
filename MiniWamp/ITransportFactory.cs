@@ -7,6 +7,10 @@ namespace DapperWare
 {
     public interface ITransportFactory
     {
+        /// <summary>
+        /// Builds a new WampTransport
+        /// </summary>
+        /// <returns></returns>
         IWampTransport Create();
     }
 }
