@@ -7,18 +7,26 @@ Currently only supports WAMP v1 but who knows v2 might be in the cards
 
 Only requires JSON.net.  Ideally would have no dependencies but lets face it the built in JSON libraries are not really up to snuff.
 
+
+
 #### Quickstart
+
+Get It: [Nuget Package](https://www.nuget.org/packages/MiniWamp/)
+
 
 Start by using the WampClient to start up a connection
 ```csharp
 
+//At the top
+using DapperWare;
+
 //Will use the default Transport which is a MessageWebSocket
 
-Task<WampSession> session = WampClient.Connect("ws://localhost:3000");
+Task<WampSession> session = WampClient.ConnectAsync("ws://localhost:3000");
 
 //You can also implement your own transport as long as it implements IWampTransport
 //Notice that we can await the connection to complete it asynchronously
-var session2 = await WampClient.Connect("ws://localhost:3000", new MyTransportFactory());
+var session2 = await WampClient.ConnectAsync("ws://localhost:3000", new MyTransportFactory());
 ```
 
 Super simple right?
@@ -34,10 +42,10 @@ mySubject.Message += mySubject_MessageHandler;
 
 //There are two ways to unsubscribe
 
-//Directly through the subject
+//Unsubscribes only this subject
 mySubject.Unsubscribe();
 
-//Through the session
+//Unsubscribes all subjects
 session.Unsubscribe("mytopic/something");
 
 //Publication
