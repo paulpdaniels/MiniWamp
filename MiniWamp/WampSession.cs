@@ -120,9 +120,10 @@ namespace DapperWare
             WriteMessage(array);
         }
 
-        public void Unsubscribe(string key)
+        public void Unsubscribe(string topic)
         {
-            this._topics.Remove(key);
+            this._topics.Remove(topic);
+            WriteMessage(new JArray(MessageType.UNSUBSCRIBE, topic));
         }
         #endregion
 
