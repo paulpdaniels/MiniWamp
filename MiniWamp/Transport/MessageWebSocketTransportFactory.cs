@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DapperWare
+namespace DapperWare.Transport
 {
     public class MessageWebSocketTransportFactory : ITransportFactory
 

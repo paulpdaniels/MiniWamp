@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
-namespace DapperWare
+namespace DapperWare.Transport
 {
     class MessageWebSocketTransport : IWampTransport
     {
