@@ -108,6 +108,8 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
     <Compile Include="Transport\MessageWebSocketTransportFactory.cs" />
+    <Compile Include="Transport\TCPSocketTransport.cs" />
+    <Compile Include="Transport\WampTransportBase.cs" />
     <Compile Include="Util\RefCounted.cs" />
     <Compile Include="WampCallException.cs" />
     <Compile Include="WampClient.cs" />
