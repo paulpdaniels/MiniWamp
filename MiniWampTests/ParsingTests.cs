@@ -8,10 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DapperWare
+namespace DapperWare.Testing
 {
     [TestClass]
-    class ParsingTests
+    
+    public class ParsingTests
     {
         private JsonSerializer serializer;
 
@@ -22,18 +23,42 @@ namespace DapperWare
         }
 
         [TestMethod]
+        [TestCategory("Parsing")]
+        public void TestDeserializeMultiMessage()
+        {
+            string message = "[3][\"test\"]";
+
+            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
+            {
+
+                reader.SupportMultipleContent = true;
+                var parsed = JArray.Load(reader);
+                reader.Read();
+                var parsed2 = JArray.Load(reader);
+
+                Assert.AreEqual(1, parsed.Count);
+                Assert.AreEqual(1, parsed2.Count);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Parsing")]
         public void TestDeserializeMessage()
         {
-            string message = "[]";
+            string message = "[3]";
 
-            using (var reader  = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
+            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
             {
-                var parsed = JArray.Load(reader);
+                List<JArray> messages = new List<JArray>();
+                reader.SupportMultipleContent = true;
 
-                Assert.AreEqual(0, parsed.Count);
+                while (reader.Read())
+                {
+                    messages.Add(JArray.Load(reader));
+                }
+
+                Assert.AreEqual(1, messages.Count);
             }
-
-
         }
 
     }

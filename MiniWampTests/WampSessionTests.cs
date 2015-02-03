@@ -9,61 +9,11 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace DapperWare
+namespace DapperWare.Testing
 {
     [TestClass]
     public class WampSessionTests
     {
-        public class MockTransportFactory : ITransportFactory
-        {
-            private IWampTransport instance;
-
-            public MockTransportFactory(IWampTransport instance)
-            {
-                this.instance = instance;
-            }
-
-            public IWampTransport Create()
-            {
-                return instance;
-            }
-        }
-
-        public class MockWampTransport : IWampTransport
-        {
-
-            public event EventHandler Closed;
-
-            public void Send(Newtonsoft.Json.Linq.JToken array)
-            {
-                if (this.SendProxy != null)
-                    this.SendProxy(array);
-            }
-
-            public Action<JToken> SendProxy { get; set; }
-
-            public event EventHandler<WampMessageEventArgs> Message;
-
-            internal void RaiseMessage(JArray result)
-            {
-                if (Message != null)
-                {
-                    this.Message(this, new WampMessageEventArgs(result));
-                }
-            }
-
-
-            public Task ConnectAsync(string url)
-            {
-                RaiseMessage(new JArray(0, "mysessionid", 1, "test server 1.0"));
-                return Task.FromResult(true);
-            }
-
-
-            public event EventHandler Error;
-        }
-
-        private ITransportFactory mockTransportFactory;
         private MockWampTransport mockTransport;
         private WampSession connection;
 
@@ -72,33 +22,42 @@ namespace DapperWare
         public void Setup()
         {
             mockTransport = new MockWampTransport();
-            mockTransportFactory = new MockTransportFactory(mockTransport);
-            var connectionTask = WampClient.ConnectAsync("ws://localhost:3000", mockTransportFactory);
+            var connectionTask = WampClient.ConnectAsync("ws://localhost:3000", () => mockTransport);
             connectionTask.Wait();
             this.connection = connectionTask.Result;
         }
 
+        [TestCleanup]
+        public void TearDown()
+        {
+            mockTransport.Reset();
+        }
+
         [TestMethod]
+        [TestCategory("Initialization")]
         public void TestInitializedSession()
         {
             Assert.AreEqual(connection.SessionId, "mysessionid");
         }
 
         [TestMethod]
+        [TestCategory("PubSub")]
         public void TestPublishEvent()
         {
             connection.Publish("test/topic", 5);
         }
 
         [TestMethod]
+        [TestCategory("PubSub")]
         public void TestSubscribe()
         {
             var t = connection.Subscribe<int>("test/topic");
             Assert.AreEqual(t.Topic, "test/topic");
-            Assert.AreEqual(connection.Subscriptions.Count(), 1);
+            Assert.AreEqual(1, connection.Subscriptions.Count());
         }
 
         [TestMethod]
+        [TestCategory("PubSub")]
         public void TestUnsubscribe()
         {
             connection.Subscribe<int>("test/topic");
@@ -116,6 +75,81 @@ namespace DapperWare
         }
 
         [TestMethod]
+        [TestCategory("PubSub")]
+        public void TestRefCountedUnsubscribe()
+        {
+            var sub1 = connection.Subscribe<int>("test/topic");
+            var sub2 = connection.Subscribe<int>("test/topic");
+
+            Assert.AreEqual(1, connection.Subscriptions.Count());
+
+            sub1.Unsubscribe();
+
+            Assert.AreEqual(1, connection.Subscriptions.Count());
+
+            sub2.Unsubscribe();
+
+            Assert.AreEqual(0, connection.Subscriptions.Count());
+        }
+
+        [TestMethod]
+        [TestCategory("PubSub")]
+        public void TestUnsubscribeBypassRefCount()
+        {
+            var sub1 = connection.Subscribe<int>("test/topic");
+            var sub2 = connection.Subscribe<int>("test/topic");
+
+            connection.Unsubscribe("test/topic");
+
+            Assert.AreEqual(0, connection.Subscriptions.Count());
+        }
+
+        [TestMethod]
+        [TestCategory("PubSub")]
+        public void TestUnsubscribeCancelListeners()
+        {
+            var sub1 = connection.Subscribe<int>("test/topic");
+
+            sub1.Event += (sender, e) => { Assert.Fail(); };
+
+            sub1.Unsubscribe();
+
+            sub1.HandleEvent("test/topic", new JValue(42));
+
+
+        }
+
+        [TestMethod]
+        [TestCategory("PubSub")]
+        public void TestResubscribe()
+        {
+            var sub1 = connection.Subscribe<int>("test/topic");
+
+            sub1.Unsubscribe();
+
+            Assert.AreEqual(2, mockTransport.Messages.Count());
+
+            connection.Subscribe<int>("test/topic");
+
+            Assert.AreEqual(3, mockTransport.Messages.Count());
+        }
+
+        [TestMethod]
+        [TestCategory("PubSub")]
+        public void TestUnsubscribeSendsMessage()
+        {
+            var sub1 = connection.Subscribe<int>("test/topic");
+
+            sub1.Unsubscribe();
+
+            Assert.IsTrue(
+                JArray.EqualityComparer.Equals(
+                new JArray(MessageType.UNSUBSCRIBE, "test/topic"),
+                mockTransport.Messages.ElementAt(1)));
+        }
+
+        [TestMethod]
+        [TestCategory("RPC")]
         public void TestCallMethod()
         {
             mockTransport.SendProxy = arr =>
@@ -135,6 +169,7 @@ namespace DapperWare
         }
 
         [TestMethod]
+        [TestCategory("RPC")]
         public void TestCallWithError()
         {
             mockTransport.SendProxy = arr =>
@@ -150,41 +185,5 @@ namespace DapperWare
 
         }
 
-        [TestMethod]
-        public void TestDeserializeMultiMessage()
-        {
-            string message = "[3][\"test\"]";
-
-            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
-            {
-                
-                reader.SupportMultipleContent = true;
-                var parsed = JArray.Load(reader);
-                reader.Read();
-                var parsed2 = JArray.Load(reader);
-
-                Assert.AreEqual(1, parsed.Count);
-                Assert.AreEqual(1, parsed2.Count);
-            }
-        }
-
-        [TestMethod]
-        public void TestDeserializeMessage()
-        {
-            string message = "[3]";
-
-            using (var reader = new JsonTextReader(new StreamReader(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(message)))))
-            {
-                List<JArray> messages = new List<JArray>();
-                reader.SupportMultipleContent = true;
-
-                while (reader.Read())
-                {
-                    messages.Add(JArray.Load(reader));
-                }
-
-                Assert.AreEqual(1, messages.Count);
-            }
-        }
     }
 }
