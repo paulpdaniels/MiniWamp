@@ -16,6 +16,7 @@ namespace DapperWare
         #region Private Members
         private Dictionary<string, IWampSubject> _topics;
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
+        private Dictionary<string, string> _prefixes;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
         private TaskCompletionSource<bool> _welcomed; 
@@ -35,6 +36,19 @@ namespace DapperWare
             get
             {
                 return this._topics.Values;
+            }
+        }
+
+        public IDictionary<string, string> Prefixes
+        {
+            get
+            {
+                if (this._prefixes == null)
+                {
+                    this._prefixes = new Dictionary<string, string>();
+                }
+
+                return this._prefixes;
             }
         }
 
@@ -99,7 +113,7 @@ namespace DapperWare
         {
             IWampSubject subject = null;
             WampSubject<T> rootSubject = null;
-
+            topic = this.Resolve(topic);
             if (!this._topics.TryGetValue(topic, out subject))
             {
                 this._topics[topic] = rootSubject = new WampSubject<T>(this, topic);
@@ -192,10 +206,21 @@ namespace DapperWare
 
             var type = (MessageType)parsedMessage[0].Value<int>();
 
-            _messageHandlers[type](parsedMessage);
+            Action<JArray> action;
+            if (_messageHandlers.TryGetValue(type, out action))
+            {
+                action(parsedMessage);
+            }
+            else
+            {
+                RaiseException(new WampException());
+            }
         }
 
-
+        protected virtual void RaiseException(WampException wampException)
+        {
+            throw new NotImplementedException();
+        }
 
         private void WriteMessage(JToken array)
         {
@@ -207,6 +232,28 @@ namespace DapperWare
             return CryptographicBuffer.EncodeToBase64String(CryptographicBuffer.GenerateRandom(20));
         }
 
+        private string Resolve(string curie)
+        {
+            if (Uri.IsWellFormedUriString(curie, UriKind.Absolute))
+                return curie;
+            else
+            {
+                var i = curie.IndexOf(":", StringComparison.Ordinal);
+
+                if (i > 0)
+                {
+                    string prefix = curie.Substring(0, i);
+                    string mapped;
+
+                    if (Prefixes.TryGetValue(prefix, out mapped))
+                    {
+                        return mapped + curie.Substring(i + 1);
+                    }
+                }
+            }
+
+            return curie;
+        }
 
     }
 }

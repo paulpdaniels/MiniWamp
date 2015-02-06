@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DapperWare
 {
-    public class WampCallException : Exception
+    public class WampCallException : WampException
     {
         public WampCallException() { }
 
