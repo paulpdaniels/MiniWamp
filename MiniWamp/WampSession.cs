@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DapperWare.Util;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace DapperWare
         #region Private Members
         private Dictionary<string, IWampSubject> _topics;
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
-        private Dictionary<string, string> _prefixes;
+        private PrefixDictionary _prefixes;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
         private TaskCompletionSource<bool> _welcomed; 
@@ -45,11 +46,19 @@ namespace DapperWare
             {
                 if (this._prefixes == null)
                 {
-                    this._prefixes = new Dictionary<string, string>();
+                    this._prefixes = new PrefixDictionary();
+                    this._prefixes.PrefixChanged += _prefixes_PrefixChanged;
+                    
                 }
 
                 return this._prefixes;
             }
+        }
+
+        private void _prefixes_PrefixChanged(object sender, NotifyPrefixesChangedEventArgs e)
+        {
+            var arr = new JArray(MessageType.PREFIX, e.Prefix.Key, e.Prefix.Value);
+            this._transport.Send(arr);
         }
 
         public string SessionId { get; private set; }
