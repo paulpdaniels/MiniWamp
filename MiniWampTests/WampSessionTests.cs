@@ -61,6 +61,13 @@ namespace DapperWare
 
 
             public event EventHandler Error;
+
+
+            public void Send(IEnumerable<object> message)
+            {
+                if (this.SendProxy != null)
+                    this.SendProxy(JArray.FromObject(message));
+            }
         }
 
         private ITransportFactory mockTransportFactory;

@@ -28,6 +28,8 @@ namespace DapperWare
         /// Sends data across the transport
         /// </summary>
         /// <param name="array"></param>
-        void Send(Newtonsoft.Json.Linq.JToken array);
+        //void Send(Newtonsoft.Json.Linq.JToken array);
+
+        void Send(IEnumerable<object> message);
     }
 }

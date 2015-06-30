@@ -180,23 +180,6 @@ namespace DapperWare
             this._pendingCalls[call_id](exception, default(JToken));
         }
 
-        void socket_MessageReceived(Windows.Networking.Sockets.MessageWebSocket sender, Windows.Networking.Sockets.MessageWebSocketMessageReceivedEventArgs args)
-        {
-            //Get the DataReader
-            var dataReader = args.GetDataReader();
-
-            //Read the data off the reader
-            var message = dataReader.ReadString(dataReader.UnconsumedBufferLength);
-
-            var parsedMessage = JArray.Parse(message);
-
-            var type = (MessageType)parsedMessage[0].Value<int>();
-
-            _messageHandlers[type](parsedMessage);
-        }
-
-
-
         private void WriteMessage(JToken array)
         {
             this._transport.Send(array);

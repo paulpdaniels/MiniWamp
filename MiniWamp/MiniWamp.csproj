@@ -102,10 +102,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ChildWampSubject.cs" />
+    <Compile Include="ISerializer.cs" />
     <Compile Include="ITransportFactory.cs" />
     <Compile Include="IWampSubject.cs" />
     <Compile Include="IWampTransport.cs" />
     <Compile Include="MessageType.cs" />
+    <Compile Include="Serialization\JsonSerializer.cs" />
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
     <Compile Include="Transport\MessageWebSocketTransportFactory.cs" />
     <Compile Include="Util\RefCounted.cs" />

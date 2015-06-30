@@ -14,6 +14,7 @@ namespace DapperWare.Transport
     class MessageWebSocketTransport : IWampTransport
     {
         private MessageWebSocket _socket;
+        private ISerializer _serializer;
 
         public MessageWebSocketTransport()
         {
@@ -76,7 +77,7 @@ namespace DapperWare.Transport
             if (this.Error != null)
             {
                 Error(sender, EventArgs.Empty);
-            } 
+            }
         }
 
         public async System.Threading.Tasks.Task ConnectAsync(string url)
@@ -86,21 +87,28 @@ namespace DapperWare.Transport
 
         public async void Send(Newtonsoft.Json.Linq.JToken array)
         {
-                using (JsonWriter writer = new JsonTextWriter(new StreamWriter(new MemoryStream())))
-                {
-                    using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))
-                    {
-                        var result = array.ToString(Formatting.None);
-                        dataWriter.WriteString(result);
-                        await dataWriter.StoreAsync();
-                        dataWriter.DetachStream();
-                    }
-                }
+            using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))
+            {
+                var result = array.ToString(Formatting.None);
+                dataWriter.WriteString(result);
+                await dataWriter.StoreAsync();
+                dataWriter.DetachStream();
+            }
+        }
+
+        public async void Send(IEnumerable<object> body)
+        {
+            using (DataWriter writer = new DataWriter(this._socket.OutputStream))
+            {
+                _serializer.Serialize(writer, body);
+                await writer.StoreAsync();
+                writer.DetachStream();
+            }
         }
 
         public event EventHandler<WampMessageEventArgs> Message;
         public event EventHandler Closed;
         public event EventHandler Error;
-        
+
     }
 }
