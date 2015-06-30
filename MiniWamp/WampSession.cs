@@ -160,7 +160,15 @@ namespace DapperWare
         {
             var call_id = m[1].Value<string>();
 
-            this._pendingCalls[call_id](null, m[2]);
+            Action<Exception, JToken> action;
+
+            if (this._pendingCalls.TryGetValue(call_id, out action))
+            {
+                this._pendingCalls.Remove(call_id);
+                action(null, m[2]);
+            }
+
+            
         }
 
         private void OnEvent(JArray m)
@@ -181,7 +189,15 @@ namespace DapperWare
 
             var exception = new WampCallException("Error on on call to topic: " + m[2].Value<string>());
 
-            this._pendingCalls[call_id](exception, default(JToken));
+            Action<Exception, JToken> action;
+
+            if (this._pendingCalls.TryGetValue(call_id, out action))
+            {
+                this._pendingCalls.Remove(call_id);
+                action(exception, default(JToken));
+            }
+
+            
         }
 
         private void DispatchMessage(IEnumerable<object> array)
