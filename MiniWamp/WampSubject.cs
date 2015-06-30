@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DapperWare
 {
-    public class WampSubject<T> : RefCounted, IWampSubject<T>
+    public class WampSubject<T> : RefCountedDisposable, IWampSubject<T>
     {
         private WampSession _session;
 
@@ -21,7 +21,6 @@ namespace DapperWare
         /// </summary>
         public event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
         
-
 
         public void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken jToken)
         {
@@ -44,7 +43,7 @@ namespace DapperWare
 
         public void Unsubscribe()
         {
-                this._session.Unsubscribe(this.Topic);
+            this._session.Unsubscribe(this.Topic);
         }
 
         protected override void DoDispose()

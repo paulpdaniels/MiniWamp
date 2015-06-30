@@ -19,6 +19,7 @@ namespace DapperWare.Transport
         public MessageWebSocketTransport()
         {
             this._socket = new MessageWebSocket();
+            this._serializer = new DapperWare.Serialization.JsonSerializer();
 
             this._socket.Control.SupportedProtocols.Add("wamp");
 

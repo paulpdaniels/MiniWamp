@@ -18,7 +18,7 @@ namespace DapperWare
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
-        private TaskCompletionSource<bool> _welcomed; 
+        private TaskCompletionSource<bool> _welcomed;
         #endregion
 
         #region Properties
@@ -48,6 +48,7 @@ namespace DapperWare
             this._messageHandlers = new Dictionary<MessageType, Action<JArray>>();
             this._topics = new Dictionary<string, IWampSubject>();
 
+
             this._transport = transport;
             this._transport.Message += transport_Message;
 
@@ -69,7 +70,7 @@ namespace DapperWare
             }
             while (this._pendingCalls.ContainsKey(call_id));
 
-            List<object> arr = new List<object> { 2, call_id, method };
+            List<object> arr = new List<object> { MessageType.CALL, call_id, method };
 
             foreach (var item in content)
             {
@@ -89,7 +90,8 @@ namespace DapperWare
                 source.SetResult(t.ToObject<T>());
             };
 
-            this._transport.Send(JArray.FromObject(arr));
+            //this._transport.Send(JArray.FromObject(arr));
+            WriteMessage(arr);
 
             return source.Task;
 
@@ -103,7 +105,7 @@ namespace DapperWare
             if (!this._topics.TryGetValue(topic, out subject))
             {
                 this._topics[topic] = rootSubject = new WampSubject<T>(this, topic);
-                this._transport.Send(new JArray(5, topic));
+                WriteMessage(new object[]{5, topic});
             }
             else
             {
@@ -115,15 +117,13 @@ namespace DapperWare
 
         public void Publish<T>(string topic, T ev)
         {
-            JArray array = new JArray(MessageType.SUBSCRIBE, topic, ev);
-
-            WriteMessage(array);
+            WriteMessage(new object [] {MessageType.SUBSCRIBE, topic, ev});
         }
 
         public void Unsubscribe(string topic)
         {
             this._topics.Remove(topic);
-            WriteMessage(new JArray(MessageType.UNSUBSCRIBE, topic));
+            WriteMessage(new object[]{MessageType.UNSUBSCRIBE, topic});
         }
         #endregion
 
@@ -180,7 +180,7 @@ namespace DapperWare
             this._pendingCalls[call_id](exception, default(JToken));
         }
 
-        private void WriteMessage(JToken array)
+        private void WriteMessage(IEnumerable<object> array)
         {
             this._transport.Send(array);
         }

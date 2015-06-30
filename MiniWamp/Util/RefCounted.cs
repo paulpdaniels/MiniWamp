@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace DapperWare.Util
 {
-    public abstract class RefCounted
+    public abstract class RefCountedDisposable : IDisposable
     {
         private readonly object _gate = new object();
         private int _count = 0;
         private bool _isDisposed;
 
-        public RefCounted()
+        public RefCountedDisposable()
         {
             _count = 0;
             _isDisposed = false;
