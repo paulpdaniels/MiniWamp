@@ -109,15 +109,15 @@ namespace DapperWare
         public void TestUnsubscribe()
         {
             connection.Subscribe<int>("test/topic");
-            var t = connection.Subscribe<int>("test/topic2");
+            using (var t = connection.Subscribe<int>("test/topic2"))
+            {
 
-            Assert.AreEqual(connection.Subscriptions.Count(), 2);
+                Assert.AreEqual(connection.Subscriptions.Count(), 2);
 
-            connection.Unsubscribe("test/topic");
+                connection.Unsubscribe("test/topic");
 
-            Assert.AreEqual(connection.Subscriptions.Count(), 1);
-
-            t.Unsubscribe();
+                Assert.AreEqual(connection.Subscriptions.Count(), 1);
+            }
 
             Assert.AreEqual(connection.Subscriptions.Count(), 0);
         }

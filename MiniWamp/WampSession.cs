@@ -48,14 +48,14 @@ namespace DapperWare
             this._messageHandlers = new Dictionary<MessageType, Action<JArray>>();
             this._topics = new Dictionary<string, IWampSubscription>();
 
-
-            this._transport = transport;
-            this._transport.Message += transport_Message;
-
             this._messageHandlers[MessageType.WELCOME] = OnWelcome;
             this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
             this._messageHandlers[MessageType.CALLERROR] = OnCallError;
             this._messageHandlers[MessageType.EVENT] = OnEvent;
+
+            this._transport = transport;
+            this._transport.Message += transport_Message;
+
         } 
         #endregion
 

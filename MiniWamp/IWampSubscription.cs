@@ -8,6 +8,9 @@ namespace DapperWare
 {
     public interface IWampSubscription : IDisposable
     {
+
+        string Topic { get; }
+
         IWampSubject CreateSubject();
 
         /// <summary>
@@ -21,6 +24,8 @@ namespace DapperWare
 
     public interface IWampSubscription<T> : IWampSubscription
     {
-        IWampSubject<T> CreateSubject();
+        new IWampSubject<T> CreateSubject();
+
+        event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
     }
 }

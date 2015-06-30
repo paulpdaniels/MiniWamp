@@ -13,17 +13,17 @@ namespace DapperWare
 
         public WampSubject(WampSubscription<T> parent, IDisposable onUnsubscribe)
         {
-            this.Parent = parent;
+            this.Subscription = parent;
             this._onUnsubscribe = onUnsubscribe;
             this._handlers = new List<EventHandler<WampSubscriptionMessageEventArgs<T>>>();
         }
 
-        public WampSubscription<T> Parent { get; private set; }
+        public IWampSubscription<T> Subscription { get; private set; }
 
         public event EventHandler<WampSubscriptionMessageEventArgs<T>> Event
         {
-            add { this.Parent.Event += value; this._handlers.Add(value); }
-            remove { this.Parent.Event -= value; this._handlers.Remove(value); }
+            add { this.Subscription.Event += value; this._handlers.Add(value); }
+            remove { this.Subscription.Event -= value; this._handlers.Remove(value); }
         }
 
         public void Unsubscribe()
@@ -32,14 +32,9 @@ namespace DapperWare
             _onUnsubscribe.Dispose();
         }
 
-        public void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken ev)
-        {
-            this.Parent.HandleEvent(topic, ev);
-        }
-
         public string Topic
         {
-            get { return this.Parent.Topic; }
+            get { return this.Subscription.Topic; }
         }
 
         /// <summary>
@@ -48,7 +43,7 @@ namespace DapperWare
         private void Detach()
         {
             foreach (var h in this._handlers)
-                Parent.Event -= h;
+                Subscription.Event -= h;
 
             this._handlers.Clear();
             

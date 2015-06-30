@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Windows.Foundation.Metadata;
 
 namespace DapperWare
 {
@@ -10,15 +11,8 @@ namespace DapperWare
         /// <summary>
         /// Unsubscribes from this subject, 
         /// </summary>
+        [Deprecated("Use .Dispose instead", DeprecationType.Deprecate, 1)]
         void Unsubscribe();
-
-        /// <summary>
-        /// Used internally for raising a new event. 
-        /// </summary>
-        /// <param name="topic"></param>
-        /// <param name="ev"></param>
-        /// <remarks> Users should not rely on this method! </remarks>
-        void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken ev);
 
         /// <summary>
         /// Gets the topic for this subject
@@ -29,6 +23,5 @@ namespace DapperWare
     public interface IWampSubject<T> : IWampSubject
     {
         event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
-
     }
 }
