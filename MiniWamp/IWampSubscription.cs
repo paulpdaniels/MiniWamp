@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DapperWare
 {
-    public interface IWampSubject : IDisposable
+    public interface IWampSubscription : IDisposable
     {
-        /// <summary>
-        /// Unsubscribes from this subject, 
-        /// </summary>
-        void Unsubscribe();
+        IWampSubject CreateSubject();
 
         /// <summary>
         /// Used internally for raising a new event. 
@@ -19,16 +17,10 @@ namespace DapperWare
         /// <param name="ev"></param>
         /// <remarks> Users should not rely on this method! </remarks>
         void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken ev);
-
-        /// <summary>
-        /// Gets the topic for this subject
-        /// </summary>
-        string Topic { get; }
     }
 
-    public interface IWampSubject<T> : IWampSubject
+    public interface IWampSubscription<T> : IWampSubscription
     {
-        event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
-
+        IWampSubject<T> CreateSubject();
     }
 }

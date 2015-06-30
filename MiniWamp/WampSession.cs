@@ -14,7 +14,7 @@ namespace DapperWare
     public class WampSession
     {
         #region Private Members
-        private Dictionary<string, IWampSubject> _topics;
+        private Dictionary<string, IWampSubscription> _topics;
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
@@ -30,7 +30,7 @@ namespace DapperWare
             }
         }
 
-        public IEnumerable<IWampSubject> Subscriptions
+        public IEnumerable<IWampSubscription> Subscriptions
         {
             get
             {
@@ -46,7 +46,7 @@ namespace DapperWare
         {
             this._pendingCalls = new Dictionary<string, Action<Exception, JToken>>();
             this._messageHandlers = new Dictionary<MessageType, Action<JArray>>();
-            this._topics = new Dictionary<string, IWampSubject>();
+            this._topics = new Dictionary<string, IWampSubscription>();
 
 
             this._transport = transport;
@@ -90,8 +90,7 @@ namespace DapperWare
                 source.SetResult(t.ToObject<T>());
             };
 
-            //this._transport.Send(JArray.FromObject(arr));
-            WriteMessage(arr);
+            DispatchMessage(arr);
 
             return source.Task;
 
@@ -99,31 +98,31 @@ namespace DapperWare
 
         public IWampSubject<T> Subscribe<T>(string topic)
         {
-            IWampSubject subject = null;
-            WampSubject<T> rootSubject = null;
+            IWampSubscription found = null;
+            IWampSubscription<T> subscription = null;
 
-            if (!this._topics.TryGetValue(topic, out subject))
+            if (!this._topics.TryGetValue(topic, out found))
             {
-                this._topics[topic] = rootSubject = new WampSubject<T>(this, topic);
-                WriteMessage(new object[]{5, topic});
+                this._topics[topic] = subscription = new WampSubscription<T>(this, topic);
+                DispatchMessage(new object[]{5, topic});
             }
             else
             {
-                rootSubject = (WampSubject<T>)subject;
+                subscription = (WampSubscription<T>)found;
             }
 
-            return rootSubject.CreateChild();
+            return subscription.CreateSubject();
         }
 
         public void Publish<T>(string topic, T ev)
         {
-            WriteMessage(new object [] {MessageType.SUBSCRIBE, topic, ev});
+            DispatchMessage(new object [] {MessageType.SUBSCRIBE, topic, ev});
         }
 
         public void Unsubscribe(string topic)
         {
             this._topics.Remove(topic);
-            WriteMessage(new object[]{MessageType.UNSUBSCRIBE, topic});
+            DispatchMessage(new object[]{MessageType.UNSUBSCRIBE, topic});
         }
         #endregion
 
@@ -163,7 +162,7 @@ namespace DapperWare
         {
             var topic = m[1].Value<string>();
 
-            IWampSubject subject = null;
+            IWampSubscription subject = null;
 
             if (this._topics.TryGetValue(topic, out subject))
             {
@@ -180,7 +179,7 @@ namespace DapperWare
             this._pendingCalls[call_id](exception, default(JToken));
         }
 
-        private void WriteMessage(IEnumerable<object> array)
+        private void DispatchMessage(IEnumerable<object> array)
         {
             this._transport.Send(array);
         }

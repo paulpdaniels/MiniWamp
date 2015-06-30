@@ -101,7 +101,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ChildWampSubject.cs" />
+    <Compile Include="IWampSubscription.cs" />
+    <Compile Include="Util\CompositeDisposable.cs" />
+    <Compile Include="WampSubject.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="ITransportFactory.cs" />
     <Compile Include="IWampSubject.cs" />
@@ -109,7 +111,7 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="Serialization\JsonSerializer.cs" />
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
-    <Compile Include="Transport\MessageWebSocketTransportFactory.cs" />
+    <Compile Include="Transport\DefaultTransportFactory.cs" />
     <Compile Include="Util\RefCounted.cs" />
     <Compile Include="WampCallException.cs" />
     <Compile Include="WampClient.cs" />
@@ -117,7 +119,7 @@
     <Compile Include="WampMessageEventArgs.cs" />
     <Compile Include="WampSubscriptionMessageEventArgs.cs" />
     <Compile Include="WampSession.cs" />
-    <Compile Include="WampSubject.cs" />
+    <Compile Include="WampSubscription.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">

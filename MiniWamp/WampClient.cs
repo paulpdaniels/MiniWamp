@@ -17,7 +17,7 @@ namespace DapperWare
         /// <returns></returns>
         public static Task<WampSession> ConnectAsync(string url)
         {
-            return ConnectAsync(url, MessageWebSocketTransportFactory.Default);
+            return ConnectAsync(url, DefaultTransportFactory.Default);
         }
 
         /// <summary>

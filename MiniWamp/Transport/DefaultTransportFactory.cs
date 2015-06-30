@@ -5,12 +5,11 @@ using System.Text;
 
 namespace DapperWare.Transport
 {
-    public class MessageWebSocketTransportFactory : ITransportFactory
-
+    public class DefaultTransportFactory : ITransportFactory
     {
-        private static readonly MessageWebSocketTransportFactory _default = new MessageWebSocketTransportFactory();
+        private static readonly DefaultTransportFactory _default = new DefaultTransportFactory();
 
-        public static MessageWebSocketTransportFactory Default
+        public static DefaultTransportFactory Default
         {
             get
             {
