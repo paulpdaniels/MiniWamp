@@ -134,9 +134,7 @@ namespace DapperWare
         internal async Task ConnectAsync(string url)
         {
             this._welcomed = new TaskCompletionSource<bool>();
-
             await this._transport.ConnectAsync(url);
-
             await this._welcomed.Task;
         }
 
@@ -144,7 +142,18 @@ namespace DapperWare
         {
             var type = (MessageType)e.Message[0].Value<int>();
 
-            _messageHandlers[type](e.Message);   
+            Action<JArray> action;
+
+            if (_messageHandlers.TryGetValue(type, out action))
+            {
+                action(e.Message);
+            }
+            else
+            {
+                //TODO Report errors
+            }
+
+             
         }
 
         private void OnWelcome(JArray obj)
@@ -167,8 +176,6 @@ namespace DapperWare
                 this._pendingCalls.Remove(call_id);
                 action(null, m[2]);
             }
-
-            
         }
 
         private void OnEvent(JArray m)
@@ -196,8 +203,6 @@ namespace DapperWare
                 this._pendingCalls.Remove(call_id);
                 action(exception, default(JToken));
             }
-
-            
         }
 
         private void DispatchMessage(IEnumerable<object> array)
