@@ -26,7 +26,7 @@ namespace DapperWare.Util
 
         public void Dispose()
         {
-            if (_isDisposed)
+            if (!_isDisposed)
             {
                 this._isDisposed = true;
                 this._action();
@@ -72,7 +72,7 @@ namespace DapperWare.Util
                     _count--;
 
                     System.Diagnostics.Debug.Assert(_count >= 0);
-                    if (_isDisposed)
+                    if (!_isDisposed)
                     {
                         if (_count == 0)
                         {
@@ -96,7 +96,7 @@ namespace DapperWare.Util
             {
                 if (_disposable != null)
                 {
-                    if (_isDisposed)
+                    if (!_isDisposed)
                     {
                         _isDisposed = true;
                         if (_count == 0)

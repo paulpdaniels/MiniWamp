@@ -121,8 +121,13 @@ namespace DapperWare
 
         public void Unsubscribe(string topic)
         {
-            this._topics.Remove(topic);
-            DispatchMessage(new object[]{MessageType.UNSUBSCRIBE, topic});
+            IWampSubscription subscription;
+            if (this._topics.TryGetValue(topic, out subscription))
+            {
+                this._topics.Remove(topic);
+                subscription.Dispose();
+                DispatchMessage(new object[] { MessageType.UNSUBSCRIBE, topic });
+            }
         }
         #endregion
 

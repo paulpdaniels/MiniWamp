@@ -50,8 +50,8 @@ namespace DapperWare
 
         public void Dispose()
         {
-            this._subscription.Dispose();
             this._subjects.Dispose();
+            //this._subscription.Dispose();
         }
 
         public IWampSubject<T> CreateSubject()
