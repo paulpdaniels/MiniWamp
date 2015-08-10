@@ -112,10 +112,13 @@
     <Compile Include="Serialization\JsonSerializer.cs" />
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
     <Compile Include="Transport\DefaultTransportFactory.cs" />
+    <Compile Include="Util\NotifyPrefixesChangedEventArgs.cs" />
+    <Compile Include="Util\PrefixDictionary.cs" />
     <Compile Include="Util\RefCounted.cs" />
     <Compile Include="WampCallException.cs" />
     <Compile Include="WampClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WampException.cs" />
     <Compile Include="WampMessageEventArgs.cs" />
     <Compile Include="WampSubscriptionMessageEventArgs.cs" />
     <Compile Include="Session\WampSession.cs" />
