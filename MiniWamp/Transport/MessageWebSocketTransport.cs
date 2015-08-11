@@ -91,25 +91,13 @@ namespace DapperWare.Transport
             this._socket.Close(1000, "");
         }
 
-        public async void Send(Newtonsoft.Json.Linq.JToken array)
+        public void Send(IEnumerable<object> body)
         {
-            using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))
-            {
-                var result = array.ToString(Formatting.None);
-                dataWriter.WriteString(result);
-                await dataWriter.StoreAsync();
-                dataWriter.DetachStream();
-            }
-        }
-
-        public async void Send(IEnumerable<object> body)
-        {
-            using (DataWriter writer = new DataWriter(this._socket.OutputStream))
-            {
-                _serializer.Serialize(writer, body);
-                await writer.StoreAsync();
-                writer.DetachStream();
-            }
+            var os = this._socket.OutputStream.AsStreamForWrite();
+            _serializer.Serialize(os, body);
+            os.Flush();
+                //await writer.StoreAsync();
+                //writer.DetachStream();
         }
 
         public event EventHandler<WampMessageEventArgs> Message;

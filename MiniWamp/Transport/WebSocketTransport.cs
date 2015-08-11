@@ -106,14 +106,13 @@ namespace DapperWare.Transport
         public async void Send(System.Collections.Generic.IEnumerable<object> message)
         {
             //TODO Write into binary
-            using (StringWriter writer = new StringWriter()) {
-                _serializer.Serialize(writer, message);
-                var s = writer.ToString();
+            using (MemoryStream stream = new MemoryStream()) {
+                _serializer.Serialize(stream, message);
+
                 await this._socket.SendAsync(
-                    new ArraySegment<byte>(Encoding.UTF8.GetBytes(s)), 
+                    new ArraySegment<byte>(stream.ToArray()), 
                     WebSocketMessageType.Text, 
-                    true, 
-                    _cts.Token);
+                    true, _cts.Token);
 
             }
         }

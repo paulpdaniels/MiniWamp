@@ -11,13 +11,6 @@ namespace DapperWare
     /// </summary>
     public interface ISerializer
     {
-        void Serialize(
-#if NETFX_CORE
-            Windows.Storage.Streams.IDataWriter writer, 
-#else
-            System.IO.TextWriter writer,
-#endif
-            
-            IEnumerable<object> array);
+        void Serialize(System.IO.Stream writer, IEnumerable<object> array);
     }
 }
