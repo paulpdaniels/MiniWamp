@@ -96,8 +96,6 @@ namespace DapperWare.Transport
             var os = this._socket.OutputStream.AsStreamForWrite();
             _serializer.Serialize(os, body);
             os.Flush();
-                //await writer.StoreAsync();
-                //writer.DetachStream();
         }
 
         public event EventHandler<WampMessageEventArgs> Message;

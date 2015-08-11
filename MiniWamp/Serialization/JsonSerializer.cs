@@ -28,8 +28,6 @@ namespace DapperWare.Serialization
                     ms.Position = 0;
                     ms.CopyTo(stream);
                 }
-
-
             }
         }
     }
