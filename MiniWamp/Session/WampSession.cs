@@ -206,6 +206,18 @@ namespace DapperWare
                 DispatchMessage(new object[] { MessageType.UNSUBSCRIBE, this._prefixes.Shrink(topic) });
             }
         }
+
+        public void Unsubscribe()
+        {
+            foreach (var item in this._topics)
+            {
+                item.Value.Dispose();
+                DispatchMessage(new object[] { MessageType.UNSUBSCRIBE, this._prefixes.Shrink(item.Key) });
+            }
+
+            this._topics.Clear();
+        }
+
         #endregion
 
         /// <summary>
