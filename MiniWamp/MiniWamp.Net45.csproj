@@ -7,7 +7,7 @@
     <ProjectGuid>{8BE00577-A86F-4C73-BFE6-AB4EEA42C9BE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiniWamp.Net45</RootNamespace>
+    <RootNamespace>DapperWare</RootNamespace>
     <AssemblyName>MiniWamp.Net45</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -29,6 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Net45|AnyCPU'">
+    <OutputPath>bin\Net45\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -44,11 +53,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ISerializer.cs" />
+    <Compile Include="IWampSubject.cs" />
+    <Compile Include="IWampSubscription.cs" />
     <Compile Include="IWampTransport.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transport\DefaultTransportFactory.Net45.cs" />
     <Compile Include="Transport\ITransportFactory.cs" />
     <Compile Include="Transport\WebSocketTransport.cs" />
+    <Compile Include="Util\KeyGenerator.Net45.cs" />
+    <Compile Include="WampCallException.cs" />
+    <Compile Include="WampClient.cs" />
+    <Compile Include="WampException.cs" />
     <Compile Include="WampMessageEventArgs.cs" />
+    <Compile Include="WampSubscriptionMessageEventArgs.cs" />
+    <Compile Include="Session\WampSession.cs" />
+    <Compile Include="Session\WampSubject.cs" />
+    <Compile Include="Session\WampSubscription.cs" />
+    <Compile Include="Util\CompositeDisposable.cs" />
+    <Compile Include="Util\NotifyPrefixesChangedEventArgs.cs" />
+    <Compile Include="Util\PrefixDictionary.cs" />
+    <Compile Include="Util\RefCounted.cs" />
+	<Compile Include="Serialization\JsonSerializer.Net45.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

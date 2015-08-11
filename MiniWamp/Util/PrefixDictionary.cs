@@ -50,7 +50,7 @@ namespace DapperWare.Util
 
         public ICollection<string> Values
         {
-            get { throw new NotImplementedException(); }
+            get { return this._prefixes.Values; }
         }
 
         public string this[string key]

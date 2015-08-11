@@ -28,8 +28,7 @@ namespace DapperWare
 
         public void Unsubscribe()
         {
-            Detach();
-            _onUnsubscribe.Dispose();
+            this.Dispose();
         }
 
         public string Topic
@@ -51,7 +50,8 @@ namespace DapperWare
 
         public void Dispose()
         {
-            this.Unsubscribe();
+            Detach();
+            _onUnsubscribe.Dispose();
         }
     }
 }
