@@ -16,7 +16,7 @@ namespace DapperWare
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="onUnsubscribe">method for informing the parent of an unsubscribe</param>
-        public WampSubject(WampSubscription<T> parent, IDisposable onUnsubscribe)
+        public WampSubject(IWampSubscription<T> parent, IDisposable onUnsubscribe)
         {
             this.Subscription = parent;
             this._onUnsubscribe = onUnsubscribe;

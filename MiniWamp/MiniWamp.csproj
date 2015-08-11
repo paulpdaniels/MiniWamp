@@ -104,6 +104,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IWampSubscription.cs" />
+    <Compile Include="Session\IWampSession.cs" />
     <Compile Include="Session\WampSession.cs" />
     <Compile Include="Util\CompositeDisposable.cs" />
     <Compile Include="Session\WampSubject.cs" />

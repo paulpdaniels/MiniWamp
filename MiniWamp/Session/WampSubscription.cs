@@ -8,11 +8,11 @@ namespace DapperWare
 {
     public class WampSubscription<T> : IWampSubscription<T>
     {
-        private WampSession _session;
+        private IWampSession _session;
         private RefCountedDisposable _subscription;
         private CompositeDisposable _subjects;
 
-        public WampSubscription(WampSession session, string topic)
+        public WampSubscription(IWampSession session, string topic)
         {
             this.Topic = topic;
             this._session = session;
@@ -51,7 +51,7 @@ namespace DapperWare
         public void Dispose()
         {
             this._subjects.Dispose();
-            //this._subscription.Dispose();
+            this._subscription.Dispose();
         }
 
         public IWampSubject<T> CreateSubject()
@@ -67,3 +67,76 @@ namespace DapperWare
         }
     }
 }
+
+
+#region Testing
+#if DEBUG && !NETFX_CORE
+
+namespace DapperWare
+{
+
+    using NUnit.Framework;
+    using Moq;
+    using Newtonsoft.Json.Linq;
+
+    [TestFixture]
+    public class WampSubscriptionTests
+    {
+
+        Mock<IWampSession> mockSession;
+
+        [SetUp]
+        public void SetUp()
+        {
+            mockSession = new Mock<IWampSession>();
+        }
+
+        [Test]
+        public void TestRaiseEvent()
+        {
+            var subscription = new WampSubscription<int>(mockSession.Object, 
+                "http://faketopic.com/something#resource");
+
+            var mockEventHandler = new Mock<EventHandler<WampSubscriptionMessageEventArgs<int>>>();
+
+            subscription.Event += mockEventHandler.Object;
+
+            subscription.HandleEvent("http://faketopic.com/something#resource", 
+                new JValue(5));
+
+            mockEventHandler.Verify(eh => eh(subscription, 
+                It.Is<WampSubscriptionMessageEventArgs<int>>(left => left.Value == 5)), Times.Once());
+        }
+
+        [Test]
+        public void TestUnsubscribeSession()
+        {
+            var subscription = new WampSubscription<int>(mockSession.Object,
+                "http://faketopic.com/something#resource");
+
+            subscription.Dispose();
+
+            mockSession.Verify(sess => sess.Unsubscribe("http://faketopic.com/something#resource"));
+        }
+
+        [Test]
+        public void TestUnsubscribeSessionWithExistingSubject()
+        {
+            var subscription = new WampSubscription<int>(mockSession.Object,
+                "http://faketopic.com/something#resource");
+
+            var subject = subscription.CreateSubject();
+
+            subscription.Dispose();
+
+            mockSession.Verify(sess => sess.Unsubscribe("http://faketopic.com/something#resource"));
+
+        }
+
+    }
+
+}
+
+#endif
+
+#endregion

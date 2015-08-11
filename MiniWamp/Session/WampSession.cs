@@ -10,7 +10,7 @@ using DapperWare.Util;
 
 namespace DapperWare
 {
-    public class WampSession
+    public class WampSession : IWampSession
     {
         #region Private Members
         private Dictionary<string, IWampSubscription> _topics;
@@ -287,11 +287,11 @@ namespace DapperWare
         {
             var topic = m[1].Value<string>();
 
-            IWampSubscription subject = null;
+            IWampSubscription subscription = null;
 
-            if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subject))
+            if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subscription))
             {
-                subject.HandleEvent(topic, m[2]);
+                subscription.HandleEvent(topic, m[2]);
             }
         }
 
