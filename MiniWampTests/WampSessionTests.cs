@@ -59,6 +59,8 @@ namespace DapperWare
                 return Task.FromResult(true);
             }
 
+            public void Close() { }
+
 
             public event EventHandler Error;
 
