@@ -22,6 +22,9 @@ namespace DapperWare
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets the transport used for this session
+        /// </summary>
         public IWampTransport Transport
         {
             get
@@ -30,6 +33,9 @@ namespace DapperWare
             }
         }
 
+        /// <summary>
+        /// Gets the set of subscriptions currently held by this session
+        /// </summary>
         public IEnumerable<IWampSubscription> Subscriptions
         {
             get
@@ -38,6 +44,9 @@ namespace DapperWare
             }
         }
 
+        /// <summary>
+        /// Gets the Map of the prefixes that are being used by this session
+        /// </summary>
         public Map<string, string> Prefixes
         {
             get
@@ -46,6 +55,12 @@ namespace DapperWare
             }
         }
 
+        /// <summary>
+        /// Gets the session id for this session
+        /// </summary>
+        /// <remarks>
+        /// This can be null if the session has not been initialized yet
+        /// </remarks>
         public string SessionId { get; private set; }
         #endregion
 
@@ -71,17 +86,20 @@ namespace DapperWare
 
         private void _prefixes_PrefixChanged(object sender, NotifyPrefixesChangedEventArgs e)
         {
-            this.Prefix(e.Prefix.Key, e.Prefix.Value);
-        }
-
-        private void Prefix(string prefix, string uri)
-        {
-            DispatchMessage(new object[] { MessageType.PREFIX, prefix, uri });
+            this.OnPrefix(e.Prefix.Key, e.Prefix.Value);
         }
 
         #endregion
 
         #region Public
+
+        /// <summary>
+        /// Invokes a call on the server
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="method"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
         public Task<T> Call<T>(string method, params object[] content)
         {
             string call_id = null;
@@ -118,6 +136,12 @@ namespace DapperWare
 
         }
 
+        /// <summary>
+        /// Creates a new subscription for a topic and returns a subject for listening to it
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="topic"></param>
+        /// <returns></returns>
         public IWampSubject<T> Subscribe<T>(string topic)
         {
             IWampSubscription found = null;
@@ -136,11 +160,24 @@ namespace DapperWare
             return subscription.CreateSubject();
         }
 
+        /// <summary>
+        /// Publishes a message for other clients
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="topic"></param>
+        /// <param name="ev"></param>
         public void Publish<T>(string topic, T ev)
         {
             DispatchMessage(new object[] { MessageType.SUBSCRIBE, this._prefixes.Shrink(topic), ev });
         }
 
+        /// <summary>
+        /// Unsubscribes completely from a given topic
+        /// </summary>
+        /// <remarks>
+        /// This will dispose of any IWampSubjects for this topic
+        /// </remarks>
+        /// <param name="topic"></param>
         public void Unsubscribe(string topic)
         {
             IWampSubscription subscription;
@@ -148,11 +185,16 @@ namespace DapperWare
             {
                 this._topics.Remove(topic);
                 subscription.Dispose();
-                DispatchMessage(new object[] { MessageType.UNSUBSCRIBE, topic });
+                DispatchMessage(new object[] { MessageType.UNSUBSCRIBE, this._prefixes.Shrink(topic) });
             }
         }
         #endregion
 
+        /// <summary>
+        /// Connects this session and waits for a welcome message from the server
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         internal async Task ConnectAsync(string url)
         {
             this._welcomed = new TaskCompletionSource<bool>();
@@ -160,6 +202,18 @@ namespace DapperWare
             await this._welcomed.Task;
         }
 
+        public void Close()
+        {
+            this._transport.Close();
+            this._welcomed.TrySetCanceled();
+
+        }
+
+        /// <summary>
+        /// Raised when the transport delivers a new message
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void transport_Message(object sender, WampMessageEventArgs e)
         {
             var type = (MessageType)e.Message[0].Value<int>();
@@ -178,6 +232,12 @@ namespace DapperWare
 
         }
 
+        #region Message Handlers
+
+        /// <summary>
+        /// Raised when the on welcome message has been received
+        /// </summary>
+        /// <param name="obj"></param>
         private void OnWelcome(JArray obj)
         {
             if (this._welcomed != null)
@@ -187,6 +247,28 @@ namespace DapperWare
             }
         }
 
+
+
+        /// <summary>
+        /// Raised when a new event has been received
+        /// </summary>
+        /// <param name="m"></param>
+        private void OnEvent(JArray m)
+        {
+            var topic = m[1].Value<string>();
+
+            IWampSubscription subject = null;
+
+            if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subject))
+            {
+                subject.HandleEvent(topic, m[2]);
+            }
+        }
+
+        /// <summary>
+        /// Raised when a call has been completed successfully
+        /// </summary>
+        /// <param name="m"></param>
         private void OnCallResult(JArray m)
         {
             var call_id = m[1].Value<string>();
@@ -200,18 +282,10 @@ namespace DapperWare
             }
         }
 
-        private void OnEvent(JArray m)
-        {
-            var topic = m[1].Value<string>();
-
-            IWampSubscription subject = null;
-
-            if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subject))
-            {
-                subject.HandleEvent(topic, m[2]);
-            }
-        }
-
+        /// <summary>
+        /// Raised when there has been an exception in during a WAMP call
+        /// </summary>
+        /// <param name="m"></param>
         private void OnCallError(JArray m)
         {
             var call_id = m[1].Value<string>();
@@ -227,11 +301,31 @@ namespace DapperWare
             }
         }
 
+        /// <summary>
+        /// Informs the server that a new prefix has been added
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="uri"></param>
+        private void OnPrefix(string prefix, string uri)
+        {
+            DispatchMessage(new object[] { MessageType.PREFIX, prefix, uri });
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Sends the message to the server
+        /// </summary>
+        /// <param name="array"></param>
         private void DispatchMessage(IEnumerable<object> array)
         {
             this._transport.Send(array);
         }
 
+        /// <summary>
+        /// Generates a new unique id for a message
+        /// </summary>
+        /// <returns></returns>
         private string GenerateCallId()
         {
             return KeyGenerator.GenerateKey(20);

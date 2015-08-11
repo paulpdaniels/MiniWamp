@@ -6,11 +6,16 @@ using System.Threading.Tasks;
 
 namespace DapperWare
 {
-    class WampSubject<T> : IWampSubject<T>
+    internal class WampSubject<T> : IWampSubject<T>
     {
         private IDisposable _onUnsubscribe;
         private List<EventHandler<WampSubscriptionMessageEventArgs<T>>> _handlers;
 
+        /// <summary>
+        /// Builds a new WampSubject using the parent subscription
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="onUnsubscribe">method for informing the parent of an unsubscribe</param>
         public WampSubject(WampSubscription<T> parent, IDisposable onUnsubscribe)
         {
             this.Subscription = parent;
@@ -18,6 +23,9 @@ namespace DapperWare
             this._handlers = new List<EventHandler<WampSubscriptionMessageEventArgs<T>>>();
         }
 
+        /// <summary>
+        /// Gets the parent subscription
+        /// </summary>
         public IWampSubscription<T> Subscription { get; private set; }
 
         public event EventHandler<WampSubscriptionMessageEventArgs<T>> Event
@@ -31,13 +39,14 @@ namespace DapperWare
             this.Dispose();
         }
 
+
         public string Topic
         {
             get { return this.Subscription.Topic; }
         }
 
         /// <summary>
-        /// Stops the ChildSubject from receiving any more updates from the parent
+        /// Stops this subject from receiving any more updates from the parent
         /// </summary>
         private void Detach()
         {
@@ -45,6 +54,8 @@ namespace DapperWare
                 Subscription.Event -= h;
 
             this._handlers.Clear();
+
+            Subscription = null;
             
         }
 

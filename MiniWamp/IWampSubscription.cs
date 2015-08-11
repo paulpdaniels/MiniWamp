@@ -11,6 +11,10 @@ namespace DapperWare
 
         string Topic { get; }
 
+        /// <summary>
+        /// Creates a new WampSubject that is bound to this subscription
+        /// </summary>
+        /// <returns></returns>
         IWampSubject CreateSubject();
 
         /// <summary>

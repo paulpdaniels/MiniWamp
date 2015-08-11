@@ -86,6 +86,11 @@ namespace DapperWare.Transport
             await this._socket.ConnectAsync(new Uri(url));
         }
 
+        public void Close()
+        {
+            this._socket.Close(1000, "");
+        }
+
         public async void Send(Newtonsoft.Json.Linq.JToken array)
         {
             using (DataWriter dataWriter = new DataWriter(this._socket.OutputStream))

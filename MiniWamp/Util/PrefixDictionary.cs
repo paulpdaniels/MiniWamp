@@ -11,9 +11,7 @@ namespace DapperWare.Util
     {
         public PrefixDictionary()
         {
-            //this._prefixes = new Dictionary<string, string>();
         }
-
 
         public override void Add(string key, string value)
         {
@@ -21,6 +19,11 @@ namespace DapperWare.Util
             OnPrefixChanged(this, new KeyValuePair<string, string>(key, value));
         }
 
+        /// <summary>
+        /// Used to raise when a new prefix has been added to this dictionary
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="value"></param>
         protected virtual void OnPrefixChanged(object sender, KeyValuePair<string, string> value)
         {
             if (this.PrefixChanged != null)
@@ -32,9 +35,13 @@ namespace DapperWare.Util
 
         public event EventHandler<NotifyPrefixesChangedEventArgs> PrefixChanged;
 
+        /// <summary>
+        /// Maps a given URI -> CURIE if a prefix mapping has been declared
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <returns></returns>
         public string Shrink(string topic)
         {
-
             if (this.Count > 0)
             {
                 for (var i = topic.Length; i > 0; --i)
@@ -50,6 +57,11 @@ namespace DapperWare.Util
             return topic;
         }
 
+        /// <summary>
+        /// Maps a given URI -> CURIE if a prefix mapping has been declared 
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <returns></returns>
         public string Unshrink(string topic)
         {
             if (this.Count > 0)

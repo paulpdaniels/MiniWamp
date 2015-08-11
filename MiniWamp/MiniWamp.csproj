@@ -110,7 +110,7 @@
     <Compile Include="IWampSubject.cs" />
     <Compile Include="IWampTransport.cs" />
     <Compile Include="MessageType.cs" />
-    <Compile Include="Serialization\JsonSerializer.cs" />
+    <Compile Include="Serialization\JsonSerializer.PCL.cs" />
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
     <Compile Include="Transport\DefaultTransportFactory.cs" />
     <Compile Include="Util\KeyGenerator.PCL.cs" />

@@ -7,7 +7,17 @@ namespace DapperWare
 {
     public interface IWampTransport
     {
+        /// <summary>
+        /// Connects to the transport asynchronously
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         System.Threading.Tasks.Task ConnectAsync(string url);
+
+        /// <summary>
+        /// Closes the underlying transport gracefully
+        /// </summary>
+        void Close();
 
         /// <summary>
         /// Raised when the transport is shutting down
@@ -31,5 +41,7 @@ namespace DapperWare
         //void Send(Newtonsoft.Json.Linq.JToken array);
 
         void Send(IEnumerable<object> message);
+
+
     }
 }

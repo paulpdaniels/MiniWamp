@@ -27,6 +27,10 @@ namespace DapperWare
         string Topic { get; }
     }
 
+    /// <summary>
+    /// A typed wamp subject
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IWampSubject<T> : IWampSubject
     {
         event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
