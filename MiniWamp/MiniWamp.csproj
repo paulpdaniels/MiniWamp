@@ -114,6 +114,7 @@
     <Compile Include="Transport\MessageWebSocketTransport.cs" />
     <Compile Include="Transport\DefaultTransportFactory.cs" />
     <Compile Include="Util\KeyGenerator.PCL.cs" />
+    <Compile Include="Util\Map.cs" />
     <Compile Include="Util\NotifyPrefixesChangedEventArgs.cs" />
     <Compile Include="Util\PrefixDictionary.cs" />
     <Compile Include="Util\RefCounted.cs" />

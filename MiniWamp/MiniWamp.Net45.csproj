@@ -75,6 +75,7 @@
     <Compile Include="Util\PrefixDictionary.cs" />
     <Compile Include="Util\RefCounted.cs" />
 	<Compile Include="Serialization\JsonSerializer.Net45.cs" />
+	<Compile Include="Util\Map.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

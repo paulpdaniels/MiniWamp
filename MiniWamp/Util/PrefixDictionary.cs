@@ -7,124 +7,63 @@ using System.Threading.Tasks;
 
 namespace DapperWare.Util
 {
-    public class PrefixDictionary : IDictionary<string, string>
+    public class PrefixDictionary : Map<string, string>
     {
-        private Dictionary<string, string> _prefixes;
-
         public PrefixDictionary()
         {
-            this._prefixes = new Dictionary<string, string>();
+            //this._prefixes = new Dictionary<string, string>();
         }
 
 
-        public void Add(string key, string value)
+        public override void Add(string key, string value)
         {
-            this._prefixes.Add(key, value);
+            base.Add(key, value);
+            OnPrefixChanged(this, new KeyValuePair<string, string>(key, value));
+        }
+
+        protected virtual void OnPrefixChanged(object sender, KeyValuePair<string, string> value)
+        {
             if (this.PrefixChanged != null)
             {
-                this.PrefixChanged(this,
-                    new NotifyPrefixesChangedEventArgs(NotifyCollectionChangedAction.Add, 
-                        new KeyValuePair<string, string>(key, value)));
+                this.PrefixChanged(sender,
+                    new NotifyPrefixesChangedEventArgs(NotifyCollectionChangedAction.Add, value));
             }
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return this._prefixes.ContainsKey(key);
-        }
-
-        public ICollection<string> Keys
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool Remove(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryGetValue(string key, out string value)
-        {
-            return this._prefixes.TryGetValue(key, out value);
-        }
-
-        public ICollection<string> Values
-        {
-            get { return this._prefixes.Values; }
-        }
-
-        public string this[string key]
-        {
-            get
-            {
-                return this._prefixes[key];
-            }
-            set
-            {
-                this._prefixes[key] = value;
-            }
-        }
-
-        public void Add(KeyValuePair<string, string> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(KeyValuePair<string, string> item)
-        {
-            return this._prefixes.Contains(item);
-        }
-
-        public void CopyTo(KeyValuePair<string, string>[] array, int arrayIndex)
-        {
-            if (array == null)
-                throw new ArgumentNullException();
-
-            if (arrayIndex < 0)
-                throw new ArgumentOutOfRangeException();
-
-            if (array.Length - arrayIndex < this.Count)
-                throw new ArgumentException("This array is not big enough");
-
-            var i = arrayIndex;
-            foreach (var item in this)
-            {
-                array[i++] = item;
-            }
-
-
-        }
-
-        public int Count
-        {
-            get { return this._prefixes.Count; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        public bool Remove(KeyValuePair<string, string> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
-        {
-            return this._prefixes.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
         }
 
         public event EventHandler<NotifyPrefixesChangedEventArgs> PrefixChanged;
+
+        public string Shrink(string topic)
+        {
+
+            if (this.Count > 0)
+            {
+                for (var i = topic.Length; i > 0; --i)
+                {
+                    var sub = topic.Substring(0, i);
+                    if (this.Backward.ContainsKey(sub))
+                    {
+                        return this.Backward[sub] + ":" + topic.Substring(i);
+                    }
+                }
+            }
+
+            return topic;
+        }
+
+        public string Unshrink(string topic)
+        {
+            if (this.Count > 0)
+            {
+                var semi = topic.IndexOf(':');
+                var sub = topic.Substring(0, semi);
+
+                if (this.Forward.ContainsKey(sub))
+                {
+                    return this.Forward[sub] + topic.Substring(semi + 1);
+                }
+            }
+
+            return topic;
+        }
     }
 }

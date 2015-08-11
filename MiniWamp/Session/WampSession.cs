@@ -18,6 +18,7 @@ namespace DapperWare
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
         private TaskCompletionSource<bool> _welcomed;
+        private PrefixDictionary _prefixes;
         #endregion
 
         #region Properties
@@ -34,6 +35,14 @@ namespace DapperWare
             get
             {
                 return this._topics.Values;
+            }
+        }
+
+        public Map<string, string> Prefixes
+        {
+            get
+            {
+                return this._prefixes;
             }
         }
 
@@ -55,7 +64,21 @@ namespace DapperWare
             this._transport = transport;
             this._transport.Message += transport_Message;
 
+            this._prefixes = new PrefixDictionary();
+            this._prefixes.PrefixChanged += _prefixes_PrefixChanged;
+
         }
+
+        private void _prefixes_PrefixChanged(object sender, NotifyPrefixesChangedEventArgs e)
+        {
+            this.Prefix(e.Prefix.Key, e.Prefix.Value);
+        }
+
+        private void Prefix(string prefix, string uri)
+        {
+            DispatchMessage(new object[] { MessageType.PREFIX, prefix, uri });
+        }
+
         #endregion
 
         #region Public
@@ -69,7 +92,7 @@ namespace DapperWare
             }
             while (this._pendingCalls.ContainsKey(call_id));
 
-            List<object> arr = new List<object> { MessageType.CALL, call_id, method };
+            List<object> arr = new List<object> { MessageType.CALL, call_id, this._prefixes.Shrink(method) };
 
             foreach (var item in content)
             {
@@ -103,7 +126,7 @@ namespace DapperWare
             if (!this._topics.TryGetValue(topic, out found))
             {
                 this._topics[topic] = subscription = new WampSubscription<T>(this, topic);
-                DispatchMessage(new object[] { 5, topic });
+                DispatchMessage(new object[] { 5, this._prefixes.Shrink(topic) });
             }
             else
             {
@@ -115,7 +138,7 @@ namespace DapperWare
 
         public void Publish<T>(string topic, T ev)
         {
-            DispatchMessage(new object[] { MessageType.SUBSCRIBE, topic, ev });
+            DispatchMessage(new object[] { MessageType.SUBSCRIBE, this._prefixes.Shrink(topic), ev });
         }
 
         public void Unsubscribe(string topic)
@@ -183,7 +206,7 @@ namespace DapperWare
 
             IWampSubscription subject = null;
 
-            if (this._topics.TryGetValue(topic, out subject))
+            if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subject))
             {
                 subject.HandleEvent(topic, m[2]);
             }
