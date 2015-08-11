@@ -166,9 +166,27 @@ namespace DapperWare
         /// <typeparam name="T"></typeparam>
         /// <param name="topic"></param>
         /// <param name="ev"></param>
-        public void Publish<T>(string topic, T ev)
+        public void Publish<T>(string topic, T ev, bool excludeMe = false)
         {
-            DispatchMessage(new object[] { MessageType.SUBSCRIBE, this._prefixes.Shrink(topic), ev });
+            List<object> payload = new List<object> { MessageType.SUBSCRIBE, this._prefixes.Shrink(topic), ev };
+
+            if (excludeMe)
+                payload.Add(true);
+
+            DispatchMessage(payload);
+        }
+
+        public void Publish<T>(string topic, T ev, IEnumerable<string> exclude, IEnumerable<string> eligible)
+        {
+            List<object> payload = new List<object> { MessageType.SUBSCRIBE, 
+                this._prefixes.Shrink(topic), 
+                ev,
+                exclude.ToList(),
+                eligible.ToList()
+            };
+
+            DispatchMessage(payload);
+
         }
 
         /// <summary>
