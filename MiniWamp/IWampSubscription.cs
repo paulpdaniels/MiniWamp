@@ -23,7 +23,7 @@ namespace DapperWare
         /// <param name="topic"></param>
         /// <param name="ev"></param>
         /// <remarks> Users should not rely on this method! </remarks>
-        void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken ev);
+        void HandleEvent(Newtonsoft.Json.Linq.JToken ev);
     }
 
     public interface IWampSubscription<T> : IWampSubscription

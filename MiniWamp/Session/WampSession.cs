@@ -19,6 +19,7 @@ namespace DapperWare
         private IWampTransport _transport;
         private TaskCompletionSource<bool> _welcomed;
         private PrefixDictionary _prefixes;
+
         #endregion
 
         #region Properties
@@ -291,7 +292,7 @@ namespace DapperWare
 
             if (this._topics.TryGetValue(this._prefixes.Unshrink(topic), out subscription))
             {
-                subscription.HandleEvent(topic, m[2]);
+                subscription.HandleEvent(m[2]);
             }
         }
 

@@ -29,12 +29,12 @@ namespace DapperWare
         public event EventHandler<WampSubscriptionMessageEventArgs<T>> Event;
         
 
-        public void HandleEvent(string topic, Newtonsoft.Json.Linq.JToken jToken)
+        public void HandleEvent(Newtonsoft.Json.Linq.JToken jToken)
         {
-            OnEvent(this, new WampSubscriptionMessageEventArgs<T>(topic, jToken.ToObject<T>()));
+            OnEvent(this, new WampSubscriptionMessageEventArgs<T>(Topic, jToken.ToObject<T>()));
         }
 
-        internal virtual void OnEvent(object sender, WampSubscriptionMessageEventArgs<T> args)
+        protected virtual void OnEvent(object sender, WampSubscriptionMessageEventArgs<T> args)
         {
             if (this.Event != null)
             {
@@ -101,8 +101,7 @@ namespace DapperWare
 
             subscription.Event += mockEventHandler.Object;
 
-            subscription.HandleEvent("http://faketopic.com/something#resource", 
-                new JValue(5));
+            subscription.HandleEvent(new JValue(5));
 
             mockEventHandler.Verify(eh => eh(subscription, 
                 It.Is<WampSubscriptionMessageEventArgs<int>>(left => left.Value == 5)), Times.Once());
