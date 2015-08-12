@@ -39,7 +39,7 @@ namespace DapperWare
         System.Threading.Tasks.Task<T> Call<T>(string method, params object[] content);
 
         /// <summary>
-        /// Shuts down this session, unsubscribes all topics and closes the underlying transport
+        /// Shuts down this session, unsubscribes all topics
         /// </summary>
         void Close();
 

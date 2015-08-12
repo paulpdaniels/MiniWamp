@@ -1,4 +1,5 @@
-﻿using DapperWare.Transport;
+﻿using DapperWare.Session;
+using DapperWare.Transport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace DapperWare
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static Task<WampSession> ConnectAsync(string url)
+        public static Task<IWampSession> ConnectAsync(string url)
         {
             return ConnectAsync(url, DefaultTransportFactory.Default);
         }
@@ -31,7 +32,7 @@ namespace DapperWare
         /// <param name="url"></param>
         /// <param name="factory"></param>
         /// <returns></returns>
-        public static Task<WampSession> ConnectAsync(string url, ITransportFactory factory)
+        public static Task<IWampSession> ConnectAsync(string url, ITransportFactory factory)
         {
             return ConnectAsync(url, () => factory.Create());
         }
@@ -42,13 +43,15 @@ namespace DapperWare
         /// <param name="url"></param>
         /// <param name="factoryFn"></param>
         /// <returns></returns>
-        public static async Task<WampSession> ConnectAsync(string url, Func<IWampTransport> factoryFn)
+        public static async Task<IWampSession> ConnectAsync(string url, Func<IWampTransport> factoryFn)
         {
-            var session = new WampSession(factoryFn());
+            var connection = new WampConnection(url, factoryFn());
 
-            await session.ConnectAsync(url);
+            //var session = new WampSession(factoryFn());
 
-            return session;
+            //await session.ConnectAsync(url);
+
+            return await connection.Open();
         }
 
     }
@@ -70,7 +73,7 @@ namespace DapperWare {
 
         private Mock<IWampTransport> mockTransport;
 
-        private WampSession connection;
+        private IWampSession connection;
 
         [SetUp]
         public async void SetUp()
@@ -91,7 +94,7 @@ namespace DapperWare {
         [Test]
         public void TestInitializedSession()
         {
-            Assert.AreEqual(connection.SessionId, "mysessionid");
+            Assert.AreEqual("mysessionid", connection.SessionId);
         }
 
         [Test]

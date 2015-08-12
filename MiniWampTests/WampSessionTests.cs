@@ -74,7 +74,7 @@ namespace DapperWare
 
         private ITransportFactory mockTransportFactory;
         private MockWampTransport mockTransport;
-        private WampSession connection;
+        private IWampSession connection;
 
 
         [TestInitialize]

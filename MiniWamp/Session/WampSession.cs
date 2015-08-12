@@ -17,7 +17,6 @@ namespace DapperWare
         private Dictionary<string, Action<Exception, JToken>> _pendingCalls;
         private Dictionary<MessageType, Action<JArray>> _messageHandlers;
         private IWampTransport _transport;
-        private TaskCompletionSource<bool> _welcomed;
         private PrefixDictionary _prefixes;
 
         #endregion
@@ -66,13 +65,13 @@ namespace DapperWare
         #endregion
 
         #region Constructor
-        public WampSession(IWampTransport transport)
+        public WampSession(string sessionid, IWampTransport transport)
         {
+            this.SessionId = sessionid;
             this._pendingCalls = new Dictionary<string, Action<Exception, JToken>>();
             this._messageHandlers = new Dictionary<MessageType, Action<JArray>>();
             this._topics = new Dictionary<string, IWampSubscription>();
 
-            this._messageHandlers[MessageType.WELCOME] = OnWelcome;
             this._messageHandlers[MessageType.CALLRESULT] = OnCallResult;
             this._messageHandlers[MessageType.CALLERROR] = OnCallError;
             this._messageHandlers[MessageType.EVENT] = OnEvent;
@@ -155,7 +154,7 @@ namespace DapperWare
             }
             else
             {
-                subscription = (WampSubscription<T>)found;
+                subscription = (IWampSubscription<T>)found;
             }
 
             return subscription.CreateSubject();
@@ -179,7 +178,9 @@ namespace DapperWare
 
         public void Publish<T>(string topic, T ev, IEnumerable<string> exclude, IEnumerable<string> eligible)
         {
-            List<object> payload = new List<object> { MessageType.SUBSCRIBE, 
+            List<object> payload = new List<object> 
+            {
+                MessageType.SUBSCRIBE, 
                 this._prefixes.Shrink(topic), 
                 ev,
                 exclude.ToList(),
@@ -221,23 +222,16 @@ namespace DapperWare
 
         #endregion
 
-        /// <summary>
-        /// Connects this session and waits for a welcome message from the server
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        internal async Task ConnectAsync(string url)
-        {
-            this._welcomed = new TaskCompletionSource<bool>();
-            await this._transport.ConnectAsync(url);
-            await this._welcomed.Task;
-        }
-
         public void Close()
         {
-            this._transport.Close();
-            this._welcomed.TrySetCanceled();
 
+            //TODO Clear up all pending calls and close any existing subscriptions
+            this.Transport.Message -= transport_Message;
+
+            foreach (var item in this.Subscriptions)
+            {
+                item.Dispose();
+            }
         }
 
         /// <summary>
@@ -258,27 +252,13 @@ namespace DapperWare
             else
             {
                 //TODO Report errors
+                throw new WampException(String.Format("Message type {0} is either unknown or not supported at this time!", type));
             }
 
 
         }
 
         #region Message Handlers
-
-        /// <summary>
-        /// Raised when the on welcome message has been received
-        /// </summary>
-        /// <param name="obj"></param>
-        private void OnWelcome(JArray obj)
-        {
-            if (this._welcomed != null)
-            {
-                this.SessionId = obj[1].Value<string>();
-                this._welcomed.SetResult(true);
-            }
-        }
-
-
 
         /// <summary>
         /// Raised when a new event has been received
