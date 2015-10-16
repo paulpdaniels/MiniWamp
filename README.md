@@ -1,4 +1,6 @@
-MiniWamp
+#MiniWamp 
+
+[![Nuget](https://img.shields.io/nuget/v/MiniWamp.svg)](https://img.shields.io/nuget/v/MiniWamp.svg) [![Downloads](https://img.shields.io/nuget/dt/MiniWamp.svg)](https://img.shields.io/nuget/dt/MiniWamp.svg)
 ========
 
 A (relatively) small implementation of WAMP for .NET 4.5 and Windows (Phone) 8.1.
