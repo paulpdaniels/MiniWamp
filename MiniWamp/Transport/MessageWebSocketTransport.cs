@@ -11,7 +11,7 @@ using Windows.Storage.Streams;
 
 namespace DapperWare.Transport
 {
-    class MessageWebSocketTransport : IWampTransport
+    public class MessageWebSocketTransport : IWampTransport
     {
         private MessageWebSocket _socket;
         private ISerializer _serializer;
