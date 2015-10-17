@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MiniWamp</id>
+		<title>MiniWamp</title>
+        <version>$version$</version>
+        <authors>Paul Daniels</authors>
+        <projectUrl>https://github.com/paulpdaniels/MiniWamp</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A pure C# implementation of the WAMP v1 specification.  Works with .NET 4.5 and as a PCL with win8.1, wp8.1.</description>
+        <summary>Light weight implementation of WAMP protocol for portable Win8.1 applications</summary>
+        <releaseNotes>
+		
+		Whats New?
+			- Refactoring
+			
+		</releaseNotes>
+        <copyright>Copyright 2015</copyright>
+        <tags>wamp real-time lite light-weight pubsub messaging</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="6.0.8" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\portable-wp8+win8\MiniWamp.dll" />
+        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\wpa81\MiniWamp.dll" />
+    </files>
+</package>
