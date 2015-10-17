@@ -7,7 +7,7 @@
         <authors>Paul Daniels</authors>
         <projectUrl>https://github.com/paulpdaniels/MiniWamp</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>A pure C# implementation of the WAMP v1 specification.  Works with .NET 4.5 and as a PCL with win8.1, wp8.1.</description>
+        <description>A pure C# implementation of the WAMP v1 specification.  Works with win8.1, wp8.1. For a .Net45 version, see MiniWamp.Net45</description>
         <summary>Light weight implementation of WAMP protocol for portable Win8.1 applications</summary>
         <releaseNotes>
 		
