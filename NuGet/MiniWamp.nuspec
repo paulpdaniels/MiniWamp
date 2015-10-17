@@ -2,6 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>MiniWamp</id>
+		<title>MiniWamp</title>
         <version>$version$</version>
         <authors>Paul Daniels</authors>
         <projectUrl>https://github.com/paulpdaniels/MiniWamp</projectUrl>
