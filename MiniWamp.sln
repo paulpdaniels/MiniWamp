@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniWampTests", "MiniWampTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniWamp.Net45", "MiniWamp\MiniWamp.Net45.csproj", "{8BE00577-A86F-4C73-BFE6-AB4EEA42C9BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniWampTests.Net45", "MiniWampTests.Net45\MiniWampTests.Net45.csproj", "{14D435A3-EDED-4B81-9D1B-717D004279B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +121,27 @@ Global
 		{8BE00577-A86F-4C73-BFE6-AB4EEA42C9BE}.Release|x64.ActiveCfg = Release|Any CPU
 		{8BE00577-A86F-4C73-BFE6-AB4EEA42C9BE}.Release|x86.ActiveCfg = Release|x86
 		{8BE00577-A86F-4C73-BFE6-AB4EEA42C9BE}.Release|x86.Build.0 = Release|x86
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|Any CPU.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|Any CPU.Build.0 = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|ARM.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|Mixed Platforms.Build.0 = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|x64.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Net45|x86.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|ARM.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{14D435A3-EDED-4B81-9D1B-717D004279B9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
