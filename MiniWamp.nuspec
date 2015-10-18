@@ -7,12 +7,13 @@
         <authors>Paul Daniels</authors>
         <projectUrl>https://github.com/paulpdaniels/MiniWamp</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>A pure C# implementation of the WAMP v1 specification.  Works with win8.1, wp8.1. For a .Net45 version, see MiniWamp.Net45</description>
-        <summary>Light weight implementation of WAMP protocol for portable Win8.1 applications</summary>
+        <description>A pure C# implementation of the WAMP v1 specification.  Works with .NET 4.5 and as a PCL with win8.1, wp8.1.</description>
+        <summary>Light weight implementation of WAMP protocol for .NET 4.5 and portable Win8.1 applications</summary>
         <releaseNotes>
 		
 		Whats New?
 			- Refactoring
+			- Auto build configuration
 			
 		</releaseNotes>
         <copyright>Copyright 2015</copyright>
@@ -22,7 +23,8 @@
         </dependencies>
     </metadata>
     <files>
-        <file src=".\bin\$configuration$\PCL\MiniWamp.dll" target="lib\portable-wp8+win8\MiniWamp.dll" />
-        <file src=".\bin\$configuration$\PCL\MiniWamp.dll" target="lib\wpa81\MiniWamp.dll" />
+        <file src=".\MiniWamp\bin\$configuration$\Net45\MiniWamp.Net45.dll" target="lib\net45\MiniWamp.Net45.dll" />
+        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\portable-wp8+win8\MiniWamp.dll" />
+        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\wpa81\MiniWamp.dll" />
     </files>
 </package>
