@@ -250,10 +250,11 @@ if($currentVersion -eq "") {
     Die("Package version cannot be empty")
 }
 
-# Build AsposeCloud
-Build-Solution -solutionFile $rootFolder\AsposeCloud.SDK-for-.NET-master\AsposeCloud.SDK.sln `
+# Build MiniWamp
+Build-Solution -solutionFile $rootFolder\MiniWamp.sln `
     -projects @( `
-        "$rootFolder\AsposeCloud.SDK-for-.NET-master\AsposeCloud.SDK\AsposeCloud.csproj"
+        "$rootFolder\MiniWamp\MiniWamp.csproj",
+		"$rootFolder\MiniWamp\MiniWamp.Net45.csproj"
     ) `
     -rootFolder $rootFolder `
     -outputFolder $outputFolder `
