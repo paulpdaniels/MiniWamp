@@ -23,8 +23,8 @@
         </dependencies>
     </metadata>
     <files>
-        <file src=".\MiniWamp\bin\$configuration$\Net45\MiniWamp.Net45.dll" target="lib\net45\MiniWamp.Net45.dll" />
-        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\portable-wp8+win8\MiniWamp.dll" />
-        <file src=".\MiniWamp\bin\$configuration$\PCL\MiniWamp.dll" target="lib\wpa81\MiniWamp.dll" />
+        <file src="bin\$configuration$\Net45\MiniWamp.Net45.dll" target="lib\net45\MiniWamp.Net45.dll" />
+        <file src="bin\$configuration$\PCL\MiniWamp.dll" target="lib\portable-wp8+win8\MiniWamp.dll" />
+        <file src="bin\$configuration$\PCL\MiniWamp.dll" target="lib\wpa81\MiniWamp.dll" />
     </files>
 </package>

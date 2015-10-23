@@ -15,8 +15,10 @@ call %NuGet% restore MiniWampTests.Net45\packages.config -OutputDirectory %cd%\p
 call %NuGet% restore MiniWampTests\packages.config -OutputDirectory %cd%\packages -NonInteractive
 
 REM Build
-%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild MiniWamp.sln /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
+%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild MiniWamp\MiniWamp.Net45.csproj /p:OutputPath=".\bin\%config%\Net45" /p:Platform="Any CPU" /p:StartupObject="" /t:rebuild /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
+%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild MiniWamp\MiniWamp.csproj /p:OutputPath=".\bin\%config%\PCL" /p:Platform="AnyCPU" /p:StartupObject="" /t:rebuild /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
+
+
 
 REM Package
-mkdir Build
-call %nuget% pack "MiniWamp.nuspec" -IncludeReferencedProjects -o Build -p Configuration=%config% %version%
+call %NuGet% pack "MiniWamp\MiniWamp.nuspec" -o Build -Properties Configuration=%config% %version%
