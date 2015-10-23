@@ -21,4 +21,5 @@ REM Build
 
 
 REM Package
+mkdir Build
 call %NuGet% pack "MiniWamp\MiniWamp.nuspec" -o Build -Properties Configuration=%config% %version%
