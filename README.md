@@ -1,6 +1,6 @@
 #MiniWamp 
 
-[![Nuget](https://img.shields.io/nuget/v/MiniWamp.svg)](https://img.shields.io/nuget/v/MiniWamp.svg) [![Downloads](https://buildstats.info/nuget/)](https://buildstats.info/nuget/)
+[![Downloads](https://buildstats.info/nuget/MiniWamp)](https://buildstats.info/nuget/MiniWamp)
 [![miniwamp MyGet Build Status](https://www.myget.org/BuildSource/Badge/miniwamp?identifier=0d49363c-bc36-49da-8de9-ad836426d9d9)](https://www.myget.org/)
 ========
 
